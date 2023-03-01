@@ -23,17 +23,12 @@ public:
     bool isValidSpot(const int x, const int y) const;
     void getEmptySpots(std::vector<Coords> empty_coords);
     virtual void chooseDirection();
-    void getDirSquares(std::vector<Coords> r_coords, std::vector<Coords> l_coords, std::vector<Coords> d_coords, std::vector<Coords> u_coords);
-    bool onDirSquare();
     
   private:
     int m_angle = right;
     bool m_alive;
     std::vector<Coords> m_empty_coords;
-    std::vector<Coords> m_r_coords;
-    std::vector<Coords> m_l_coords;
-    std::vector<Coords> m_d_coords;
-    std::vector<Coords> m_u_coords;
+
 };
 
 class Vortex: public Actor
@@ -62,9 +57,14 @@ class Player: public Actor
     void setActionNum(int action){m_action = action;};
     bool fireSound(){return m_firesound;};
     void chooseDirection() override;
-    
+    void getDirSquares(std::vector<Coords> r_coords, std::vector<Coords> l_coords, std::vector<Coords> d_coords, std::vector<Coords> u_coords);
+    void onDirSquare();
+    bool isOnDir(){return dirTF;};
+    void setAngle(int angle){m_angle = angle;};
+
   private:
     //Coordinates m_pairs;
+    bool dirTF = false;
     int numCoins;
     int numStars;
     int ticks_to_move;
@@ -75,6 +75,11 @@ class Player: public Actor
     int start_y;
     bool m_firesound;
     int m_angle;
+    std::vector<Coords> m_r_coords;
+    std::vector<Coords> m_l_coords;
+    std::vector<Coords> m_d_coords;
+    std::vector<Coords> m_u_coords;
+    
 };
 
 class Baddie: public Actor

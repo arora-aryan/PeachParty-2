@@ -45,7 +45,6 @@ void Player::doSomething()
         //lol i dont think i can use moveforward. prob use move in some direction or something, might add direction function to avatar class
         cerr<<"move: " << m_angle <<endl;
         moveAtAngle(m_angle, 2);
-        cerr<<"tivks " << ticks_to_move <<endl;
         ticks_to_move--;
     }
     else
@@ -91,7 +90,13 @@ void Player::doSomething()
             cerr<<"i'm at " << getX()/16 << ' ' << getY()/16 << endl;
             cerr<< isValidSpot(next_x, next_y) << endl;
             
-            if(!isValidSpot(next_x, next_y))
+            onDirSquare();
+            cerr<<"aamama"<<isOnDir()<<endl;
+            if(isOnDir() == true)
+            {
+                dirTF = false;
+            }
+            else if(!isValidSpot(next_x, next_y))
             {
                 cerr<<"here: " << 20 <<endl;
                 for(int i = 0; i <= 270; i+=90)
@@ -201,7 +206,7 @@ void Player::chooseDirection()
         cerr<<"none?"<<endl;
 }
 
-void Actor::getDirSquares(std::vector<Coords> r_coords, std::vector<Coords> l_coords, std::vector<Coords> d_coords, std::vector<Coords> u_coords)
+void Player::getDirSquares(std::vector<Coords> r_coords, std::vector<Coords> l_coords, std::vector<Coords> d_coords, std::vector<Coords> u_coords)
 {
     m_r_coords = r_coords;
     m_l_coords = l_coords;
@@ -209,7 +214,7 @@ void Actor::getDirSquares(std::vector<Coords> r_coords, std::vector<Coords> l_co
     m_u_coords = u_coords;
 }
 
-bool Actor::onDirSquare()
+void Player::onDirSquare()
 {
     Coords curr_coords = {getX()/SPRITE_WIDTH, getY()/SPRITE_HEIGHT};
     //int curr_y = getY()/SPRITE_HEIGHT;
@@ -217,28 +222,33 @@ bool Actor::onDirSquare()
     for(int i = 0; i < m_r_coords.size(); i++){
         if(curr_coords.x == m_r_coords[i].x && curr_coords.y == m_r_coords[i].y)
         {
-            return true;
+            dirTF = true;
+            setAngle(right);
         }
     }
     for(int i = 0; i < m_l_coords.size(); i++){
         if(curr_coords.x == m_l_coords[i].x && curr_coords.y == m_l_coords[i].y)
         {
-            return true;
+            dirTF = true;
+            setAngle(left);
         }
     }
     for(int i = 0; i < m_u_coords.size(); i++){
         if(curr_coords.x == m_u_coords[i].x && curr_coords.y == m_u_coords[i].y)
         {
-            return true;
+            dirTF = true;
+            setAngle(up);
         }
     }
-    for(int i = 0; i < m_r_coords.size(); i++){
+    for(int i = 0; i < m_d_coords.size(); i++){
         if(curr_coords.x == m_d_coords[i].x && curr_coords.y == m_d_coords[i].y)
         {
-            return true;
+            dirTF = true;
+            cerr<<"im down"<<endl;
+            setAngle(down);
+            cerr<<"im down and angle is " <<m_angle<<endl;
         }
     }
-    return false;
 }
 
 void Baddie::doSomething(){}
