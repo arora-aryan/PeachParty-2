@@ -23,6 +23,7 @@ public:
     bool isValidSpot(const int x, const int y) const;
     void getEmptySpots(std::vector<Coords> empty_coords);
     virtual void chooseDirection();
+    void getWorld();
     
   private:
     int m_angle = right;
@@ -61,6 +62,7 @@ class Player: public Actor
     void onDirSquare();
     bool isOnDir(){return dirTF;};
     void setAngle(int angle){m_angle = angle;};
+    void deadEnd(int next_x, int next_y);
 
   private:
     //Coordinates m_pairs;
@@ -97,6 +99,7 @@ class Square: public Actor
   public:
     Square(int imageID, int startX, int startY): Actor(imageID, startX, startY){}
     virtual void doSomething() = 0;
+    virtual bool playerOn();
 
   private:
 };

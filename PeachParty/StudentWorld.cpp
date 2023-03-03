@@ -183,7 +183,14 @@ int StudentWorld::move()
     
     m_peach->setActionNum(getAction(1));
     m_yoshi->setActionNum(getAction(2));
-        
+    
+    int peach_x = m_peach->getX();
+    int yoshi_x = m_yoshi->getX();
+    int peach_y = m_peach->getY();
+    int yoshi_y = m_yoshi->getY();
+    
+    
+    
     m_peach->doSomething();
     m_yoshi->doSomething();
     if(m_peach->fireSound() == true || m_yoshi->fireSound() == true)

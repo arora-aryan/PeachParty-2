@@ -34,15 +34,22 @@ void Actor::getEmptySpots(std::vector<Coords> empty_coords)
     m_empty_coords = empty_coords;
 }
 
+void Actor::getWorld()
+{
+    
+}
+
+
+
+
 void Player::doSomething()
 {
     m_firesound = false;
-    int next_x;
-    int next_y;
+    int next_x = 0;
+    int next_y = 0;
     
     if(ticks_to_move > 0)
     {
-        //lol i dont think i can use moveforward. prob use move in some direction or something, might add direction function to avatar class
         cerr<<"move: " << m_angle <<endl;
         moveAtAngle(m_angle, 2);
         ticks_to_move--;
@@ -69,62 +76,62 @@ void Player::doSomething()
             m_has_vortex = false;
             delete player_vortex;
         }
-        //introduce vortex on square directly in front of avatar in walking direction
-        //play sound_player_fire
-        //update avatar so it doesnt have vortex anymore
     }
-    if(waiting_to_roll == false)// && (ticks_to_move % 8) == 0)
+    if(((getX() % 16) == 0) && ((getY() % 16) == 0))
     {
-        if(((getX() % 16) == 0) && ((getY() % 16) == 0))
+        if(waiting_to_roll == false)
         {
-            
-            getPositionInThisDirection(m_angle, SPRITE_WIDTH, next_x, next_y);
-            
-            next_x/=BOARD_WIDTH;
-            next_y/=BOARD_HEIGHT;
-            
-            cerr<<next_x<<endl;
-            cerr<<start_x<<endl;
-            
-            cerr<<"IS THE SPOT "<< next_x << ' ' << next_y << " VALID?" <<endl;
-            cerr<<"i'm at " << getX()/16 << ' ' << getY()/16 << endl;
-            cerr<< isValidSpot(next_x, next_y) << endl;
-            
+            deadEnd(next_x, next_y);
+        }
+        else
+        {
             onDirSquare();
-            cerr<<"aamama"<<isOnDir()<<endl;
+
             if(isOnDir() == true)
             {
                 dirTF = false;
             }
-            else if(!isValidSpot(next_x, next_y))
-            {
-                cerr<<"here: " << 20 <<endl;
-                for(int i = 0; i <= 270; i+=90)
-                {
-                    //its super important to scale the x, y! 99% of my problems can be solved with that. always check for scale
-                    getPositionInThisDirection(i, SPRITE_WIDTH, next_x, next_y);
-                    next_x/=BOARD_WIDTH;
-                    next_y/=BOARD_HEIGHT;
-                    cerr<<"here: " << 21 <<endl;
-                    
-                    if(isValidSpot(next_x, next_y))
-                    {
-                        cerr<<"here: " << 22 << ' ' << m_angle << endl;
-                        chooseDirection();
-                        break;
-                    }
-                }
-            }
-            
+            waiting_to_roll = false;
         }
     }
-    //if(waiting_to_roll == true)
-    //{
-        
-    //}
     
 }
 
+void Player::deadEnd(int next_x, int next_y)
+{
+    getPositionInThisDirection(m_angle, SPRITE_WIDTH, next_x, next_y);
+    
+    next_x/=BOARD_WIDTH;
+    next_y/=BOARD_HEIGHT;
+    
+    cerr<<next_x<<endl;
+    cerr<<start_x<<endl;
+    
+    cerr<<"IS THE SPOT "<< next_x << ' ' << next_y << " VALID?" <<endl;
+    cerr<<"i'm at " << getX()/16 << ' ' << getY()/16 << endl;
+    cerr<< isValidSpot(next_x, next_y) << endl;
+    
+    if(!isValidSpot(next_x, next_y))
+    {
+        cerr<<"here: " << 20 <<endl;
+        for(int i = 0; i <= 270; i+=90)
+        {
+            //its super important to scale the x, y! 99% of my problems can be solved with that. always check for scale
+            getPositionInThisDirection(i, SPRITE_WIDTH, next_x, next_y);
+            next_x/=BOARD_WIDTH;
+            next_y/=BOARD_HEIGHT;
+            cerr<<"here: " << 21 <<endl;
+            
+            if(isValidSpot(next_x, next_y))
+            {
+                cerr<<"here: " << 22 << ' ' << m_angle << endl;
+                chooseDirection();
+                break;
+            }
+        }
+    }
+    
+}
 void Actor::chooseDirection(){}
 
 void Player::chooseDirection()
@@ -224,13 +231,16 @@ void Player::onDirSquare()
         {
             dirTF = true;
             setAngle(right);
+            return;
         }
     }
     for(int i = 0; i < m_l_coords.size(); i++){
         if(curr_coords.x == m_l_coords[i].x && curr_coords.y == m_l_coords[i].y)
         {
             dirTF = true;
+            setDirection(left);
             setAngle(left);
+            return;
         }
     }
     for(int i = 0; i < m_u_coords.size(); i++){
@@ -238,6 +248,7 @@ void Player::onDirSquare()
         {
             dirTF = true;
             setAngle(up);
+            return;
         }
     }
     for(int i = 0; i < m_d_coords.size(); i++){
@@ -247,6 +258,7 @@ void Player::onDirSquare()
             cerr<<"im down"<<endl;
             setAngle(down);
             cerr<<"im down and angle is " <<m_angle<<endl;
+            return;
         }
     }
 }
@@ -257,6 +269,11 @@ void CoinSquare::doSomething()
 {
     if(!isAlive())
         return;
+    
+    if(playerOn())
+    {
+        //coinDifference();
+    }
 }
 
 //void RedCoinSquare::doSomething(){}
