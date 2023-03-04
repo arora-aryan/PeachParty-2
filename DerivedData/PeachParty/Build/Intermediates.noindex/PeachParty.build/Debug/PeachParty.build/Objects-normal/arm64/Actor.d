@@ -6,6 +6,6 @@ dependencies: /Users/aryanarora/Desktop/PeachParty\ 2/PeachParty/Actor.cpp \
   /usr/X11/include/GL/freeglut_ext.h \
   /usr/X11/include/GL/freeglut_ucall.h \
   /Users/aryanarora/Desktop/PeachParty\ 2/PeachParty/GameConstants.h \
-  /Users/aryanarora/Desktop/PeachParty\ 2/PeachParty/StudentWorld.h \
   /Users/aryanarora/Desktop/PeachParty\ 2/PeachParty/GameWorld.h \
-  /Users/aryanarora/Desktop/PeachParty\ 2/PeachParty/Board.h
+  /Users/aryanarora/Desktop/PeachParty\ 2/PeachParty/Board.h \
+  /Users/aryanarora/Desktop/PeachParty\ 2/PeachParty/StudentWorld.h
