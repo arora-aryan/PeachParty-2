@@ -12,7 +12,7 @@ void Player::doSomething()
     if (alive == false)
         return;
     
-    if(atFork() == true)
+    if(atFork() == true && waiting_to_move == true && getX() % 16 == 0 && getY() % 16 == 0)
     {
         cerr<<"at fork"<<endl;
         chooseDirection(getWorld()->getAction(m_playernumber));
@@ -56,7 +56,7 @@ void Player::doSomething()
     }
 }
 
-
+//
 void Player::chooseDirection(int dir)
 {
     //waiting_to_roll = true;
@@ -67,48 +67,51 @@ void Player::chooseDirection(int dir)
     bool leftOpen = (getWorld()->getBoard().getContentsOf(board_x-1, board_y) != Board::empty);
     bool upOpen = (getWorld()->getBoard().getContentsOf(board_x, board_y+1) != Board::empty);
     bool downOpen = (getWorld()->getBoard().getContentsOf(board_x, board_y-1) != Board::empty);
-    
-    switch(getWorld()->getAction(m_playernumber))
+    cerr<<"mydir"<<dir<<endl;
+    switch(dir)
     {
         default:
             return;
         case ACTION_RIGHT:
+            cerr<<"my walk angle"<<getWalkAngle()<< endl;
+
             if(getWalkAngle() == left || !rightOpen)
             {
-                return;
+                break;
             }
             setWalkAngle(right);
-            //waiting_to_roll = false;
+            waiting_to_move = false;
             break;
         case ACTION_LEFT:
+            cerr<<"my walk angle"<<getWalkAngle()<< endl;
             if(getWalkAngle() == right || !leftOpen)
             {
-                return;
+                break;
             }
             setWalkAngle(left);
-            //waiting_to_roll = false;
-
+            waiting_to_move = false;
             break;
         case ACTION_UP:
+            cerr<<"my walk angle"<<getWalkAngle()<< endl;
+
             if(getWalkAngle() == down || !upOpen)
             {
-                return;
+                break;
             }
             setWalkAngle(up);
-            //waiting_to_roll = false;
-
+            waiting_to_move = false;
             break;
         case ACTION_DOWN:
+            cerr<<"my walk angle"<<getWalkAngle()<< endl;
+
             if(getWalkAngle() == up || !downOpen)
             {
-                return;
+                break;
             }
             setWalkAngle(down);
-            //waiting_to_roll = false;
-
+            waiting_to_move = false;
             break;
     }
-    
     
 }
 
@@ -162,7 +165,7 @@ void Player::deadEnd()
 
 bool Player::atFork()
 {
-    
+    waiting_to_move = true;
     int board_x = getX()/SPRITE_WIDTH;
     int board_y = getY()/SPRITE_HEIGHT;
     
@@ -261,7 +264,7 @@ bool Player::atFork()
     }
 
     // If at_fork is true, the character has reached a fork in the path
-    
+    waiting_to_move = true;
     return at_fork;
 }
 

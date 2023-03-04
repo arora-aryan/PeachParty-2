@@ -29,7 +29,7 @@ class Actor : public GraphObject
 class Player : public Actor
 {
   public:
-    Player(StudentWorld* world, int imageID, int startX, int startY, int playerNum) : Actor(world, imageID, startX, startY, 0), ticks_to_move(0), waiting_to_roll(true), m_playernumber(playerNum), alive(true), m_activation(false), m_numStars(0)
+    Player(StudentWorld* world, int imageID, int startX, int startY, int playerNum) : Actor(world, imageID, startX, startY, 0), ticks_to_move(0), waiting_to_roll(true), m_playernumber(playerNum), alive(true), m_activation(false), m_numStars(0), waiting_to_move(false)
     {
         start_x = getX() / SPRITE_WIDTH;
         start_y = getY()/SPRITE_HEIGHT;
@@ -51,6 +51,7 @@ class Player : public Actor
     void chooseDirection(int dir);
     
   private:
+    bool waiting_to_move;
     int start_x;
     int start_y;
     bool m_activation;
