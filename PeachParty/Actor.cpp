@@ -7,11 +7,18 @@ using namespace std;
 
 void Player::doSomething()
 {
-    cerr<<"mystars: "<<numStars()<<endl;
+    cerr<<"mystars : "<<numStars()<<endl;
+    cerr<<"mycoins : "<<numCoins()<<endl;
     if (alive == false)
         return;
     
-    if (waiting_to_roll == true)
+    if(atFork() == true)
+    {
+        cerr<<"at fork"<<endl;
+        chooseDirection(getWorld()->getAction(m_playernumber));
+    }
+    
+    if (waiting_to_roll == true && ((getX() % 16 == 0) && (getY() % 16 == 0)))
     {
         switch(getWorld()->getAction(m_playernumber))
         {
@@ -48,13 +55,68 @@ void Player::doSomething()
             waiting_to_roll = true; //change avatar back to waiting to roll state
     }
 }
+
+
+void Player::chooseDirection(int dir)
+{
+    //waiting_to_roll = true;
+    int board_x = getX()/SPRITE_WIDTH;
+    int board_y = getY()/SPRITE_HEIGHT;
+    
+    bool rightOpen = (getWorld()->getBoard().getContentsOf(board_x+1, board_y) != Board::empty);
+    bool leftOpen = (getWorld()->getBoard().getContentsOf(board_x-1, board_y) != Board::empty);
+    bool upOpen = (getWorld()->getBoard().getContentsOf(board_x, board_y+1) != Board::empty);
+    bool downOpen = (getWorld()->getBoard().getContentsOf(board_x, board_y-1) != Board::empty);
+    
+    switch(getWorld()->getAction(m_playernumber))
+    {
+        default:
+            return;
+        case ACTION_RIGHT:
+            if(getWalkAngle() == left || !rightOpen)
+            {
+                return;
+            }
+            setWalkAngle(right);
+            //waiting_to_roll = false;
+            break;
+        case ACTION_LEFT:
+            if(getWalkAngle() == right || !leftOpen)
+            {
+                return;
+            }
+            setWalkAngle(left);
+            //waiting_to_roll = false;
+
+            break;
+        case ACTION_UP:
+            if(getWalkAngle() == down || !upOpen)
+            {
+                return;
+            }
+            setWalkAngle(up);
+            //waiting_to_roll = false;
+
+            break;
+        case ACTION_DOWN:
+            if(getWalkAngle() == up || !downOpen)
+            {
+                return;
+            }
+            setWalkAngle(down);
+            //waiting_to_roll = false;
+
+            break;
+    }
+    
+    
+}
+
 void Player::deadEnd()
 {
     int board_x = getX()/SPRITE_WIDTH;
     int board_y = getY()/SPRITE_HEIGHT;
-    
-    cerr<<"my coins"<< m_numCoins << endl;
-    
+        
     bool rightOpen = (getWorld()->getBoard().getContentsOf(board_x+1, board_y) != Board::empty);
     bool leftOpen = (getWorld()->getBoard().getContentsOf(board_x-1, board_y) != Board::empty);
     bool upOpen = (getWorld()->getBoard().getContentsOf(board_x, board_y+1) != Board::empty);
@@ -98,12 +160,117 @@ void Player::deadEnd()
     }
 }
 
+bool Player::atFork()
+{
+    
+    int board_x = getX()/SPRITE_WIDTH;
+    int board_y = getY()/SPRITE_HEIGHT;
+    
+    if(start_x == board_x && start_y == board_y)
+    {
+        return false;
+    }
+    
+    right_open = false;
+    left_open = false;
+    up_open = false;
+    down_open = false;
+    
+    // Determine if the character has reached a fork in the path
+    bool at_fork = false;
+    
+    // Count the number of available directions to move in
+    int num_available_directions = 0;
+    
+    if(getWalkAngle() == right)
+    {
+        if((getWorld()->getBoard().getContentsOf(board_x+1, board_y) != Board::empty)){
+            cerr<<"right open"<<endl;
+            num_available_directions++;
+        }
+        
+        if((getWorld()->getBoard().getContentsOf(board_x, board_y+1) != Board::empty)){
+            cerr<<"up open"<<endl;
+            num_available_directions++;
+
+        }
+        if((getWorld()->getBoard().getContentsOf(board_x, board_y-1) != Board::empty)){
+            cerr<<"down open"<<endl;
+            num_available_directions++;
+        }
+        
+    }
+    else if(getWalkAngle() == left)
+    {
+        if((getWorld()->getBoard().getContentsOf(board_x-1, board_y) != Board::empty)){
+            cerr<<"left open"<<endl;
+            num_available_directions++;
+        }
+        
+        if((getWorld()->getBoard().getContentsOf(board_x, board_y+1) != Board::empty)){
+            cerr<<"up open"<<endl;
+            num_available_directions++;
+            
+        }
+        if((getWorld()->getBoard().getContentsOf(board_x, board_y-1) != Board::empty)){
+            cerr<<"down open"<<endl;
+            num_available_directions++;
+        }
+    }
+    else if(getWalkAngle() == up)
+    {
+        if((getWorld()->getBoard().getContentsOf(board_x+1, board_y) != Board::empty)){
+            cerr<<"right open"<<endl;
+            num_available_directions++;
+        }
+        
+        if((getWorld()->getBoard().getContentsOf(board_x-1, board_y) != Board::empty)){
+            cerr<<"left open"<<endl;
+            num_available_directions++;
+        }
+        
+        if((getWorld()->getBoard().getContentsOf(board_x, board_y+1) != Board::empty)){
+            cerr<<"up open"<<endl;
+            num_available_directions++;
+        }
+        
+    }
+    else if(getWalkAngle() == down)
+    {
+        if((getWorld()->getBoard().getContentsOf(board_x+1, board_y) != Board::empty)){
+            cerr<<"right open"<<endl;
+            num_available_directions++;
+        }
+        
+        if((getWorld()->getBoard().getContentsOf(board_x-1, board_y) != Board::empty)){
+            cerr<<"left open"<<endl;
+            num_available_directions++;
+        }
+        if((getWorld()->getBoard().getContentsOf(board_x, board_y-1) != Board::empty)){
+            cerr<<"down open"<<endl;
+            num_available_directions++;
+        }
+        
+    }
+    
+
+    cerr<<"avail: " << num_available_directions<<endl;
+    // If there is more than one available direction, the character is at a fork
+    if (num_available_directions > 1) {
+      at_fork = true;
+    }
+
+    // If at_fork is true, the character has reached a fork in the path
+    
+    return at_fork;
+}
 
 void CoinSquare::doSomething() {
     if(!m_active)
         return;
     getWorld()->coinPlayerOverlap();
 }
+
 void DirSquare::doSomething()
 {
     getWorld()->encounterDirSquare();
@@ -119,6 +286,7 @@ void StarSquare::doSomething()
     getWorld()->starPlayerOverlap();
 }
 
+//this is next
 void BankSquare::doSomething()
 {
     //getWorld()->bankPlayerOverlap();

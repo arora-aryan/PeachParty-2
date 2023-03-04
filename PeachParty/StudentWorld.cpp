@@ -28,9 +28,9 @@ int StudentWorld::init()
     Board::LoadResult result = bd.loadBoard(boardFile);
     
     if (result == Board::load_fail_file_not_found)
-        cerr << "Could not find board" + boardNum + " file \n";
+        cout << "Could not find board" + boardNum + " file" << endl;
     else if (result == Board::load_fail_bad_format)
-        cerr << "Board not loaded\n";
+        cout << "Board not loaded" << endl;
     else if (result == Board::load_success)
     {
         for (int i = 0; i < 16; i++)
@@ -50,8 +50,6 @@ int StudentWorld::init()
                         break;
                     case Board::blue_coin_square:
                         m_actors.push_back(new BlueCoinSquare(this, i, j));
-                        cerr<<i<<' '<<j<< " Blue"<<endl;
-
                         break;
                     case Board::red_coin_square:
                         m_actors.push_back(new RedCoinSquare(this, i, j));
@@ -78,7 +76,6 @@ int StudentWorld::init()
                         m_actors.push_back(new StarSquare(this, i,j));
                         break;
                     case Board::bowser:
-                        cerr<<i<<' '<<j<< " Bowser"<<endl;
                         m_actors.push_back(new Bowser(this, i * SPRITE_WIDTH,j * SPRITE_HEIGHT));
                         m_actors.push_back(new BlueCoinSquare(this, i, j));
                         break;
@@ -120,7 +117,6 @@ int StudentWorld::move()
 void StudentWorld::coinPlayerOverlap()
 {
     
-    //cerr<<"hello here"<<endl;
     int peach_x = m_peach->getX()/SPRITE_WIDTH;
     int peach_y = m_peach->getY() / SPRITE_HEIGHT;
     int yoshi_x = m_yoshi->getX()/SPRITE_WIDTH;
@@ -128,7 +124,6 @@ void StudentWorld::coinPlayerOverlap()
     
     if(m_peach->canActivate() && m_peach->isWaiting())
     {
-        cerr<<1<<endl;
         if(getBoard().getContentsOf(peach_x, peach_y) == Board::blue_coin_square){
             playSound(SOUND_GIVE_COIN);
             m_peach->updateCoinBalance(3);
@@ -144,7 +139,6 @@ void StudentWorld::coinPlayerOverlap()
     }
     if(m_yoshi->canActivate() && m_yoshi->isWaiting())
     {
-        cerr<<2<<endl;
         if(getBoard().getContentsOf(yoshi_x, yoshi_y) == Board::blue_coin_square){
             playSound(SOUND_GIVE_COIN);
             m_yoshi->updateCoinBalance(3);
@@ -165,7 +159,6 @@ void StudentWorld::coinPlayerOverlap()
 void StudentWorld::encounterDirSquare()
 {
     
-    cerr<<"hello here"<<endl;
     int peach_x = m_peach->getX()/SPRITE_WIDTH;
     int peach_y = m_peach->getY()/SPRITE_HEIGHT;
     int yoshi_x = m_yoshi->getX()/SPRITE_WIDTH;
@@ -177,19 +170,15 @@ void StudentWorld::encounterDirSquare()
         switch (ge)
         {
             case Board::left_dir_square:
-                cerr<<10<<endl;
                 m_peach->setWalkAngle(left);
                 break;
             case Board::right_dir_square:
-                cerr<<11<<endl;
                 m_peach->setWalkAngle(right);
                 break;
             case Board::up_dir_square:
-                cerr<<12<<endl;
                 m_peach->setWalkAngle(up);
                 break;
             case Board::down_dir_square:
-                cerr<<13<<endl;
                 m_peach->setWalkAngle(down);
                 break;
         }
@@ -202,19 +191,15 @@ void StudentWorld::encounterDirSquare()
         switch (ge)
         {
             case Board::left_dir_square:
-                cerr<<14<<endl;
                 m_yoshi->setWalkAngle(left);
                 break;
             case Board::right_dir_square:
-                cerr<<15<<endl;
                 m_yoshi->setWalkAngle(right);
                 break;
             case Board::up_dir_square:
-                cerr<<16<<endl;
                 m_yoshi->setWalkAngle(up);
                 break;
             case Board::down_dir_square:
-                cerr<<17<<endl;
                 m_yoshi->setWalkAngle(down);
                 break;
         }
@@ -229,7 +214,7 @@ void StudentWorld::starPlayerOverlap()
     int yoshi_y = m_yoshi->getY()/SPRITE_HEIGHT;
     
     
-    if(m_yoshi->canActivate() && m_yoshi->isWaiting() && m_yoshi->getX() % 16 == 0 && m_yoshi->getY() % 16 == 0 && m_yoshi->numCoins() >= 20)
+    if(m_yoshi->canActivate() && m_yoshi->getX() % 16 == 0 && m_yoshi->getY() % 16 == 0 && m_yoshi->numCoins() >= 20)
     {
         
         Board::GridEntry ge = getBoard().getContentsOf(yoshi_x,yoshi_y);
@@ -241,7 +226,7 @@ void StudentWorld::starPlayerOverlap()
                 m_yoshi->addStar();
         }
     }
-    if(m_peach->canActivate() && m_peach->isWaiting() && m_peach->getX() % 16 == 0 && m_peach->getY() % 16 == 0 && m_peach->numCoins() >= 20)
+    if(m_peach->canActivate() && m_peach->getX() % 16 == 0 && m_peach->getY() % 16 == 0 && m_peach->numCoins() >= 20)
     {
         
         Board::GridEntry ge = getBoard().getContentsOf(peach_x,peach_y);
@@ -278,15 +263,13 @@ void StudentWorld::cleanUp()
             m_yoshi = nullptr;
         }
         
-   // for (vector<Actor*>::iterator it = m_actors.begin(); it != m_actors.end(); it++)
-    //{
-      //  delete *it;
-    //}
+    for (vector<Actor*>::iterator it = m_actors.begin(); it != m_actors.end(); it++)
+    {
+        delete *it;
+    }
 }
 
 StudentWorld::~StudentWorld()
-{
-    cleanUp();
-}
+{}
 
 

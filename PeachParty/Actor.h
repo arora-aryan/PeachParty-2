@@ -29,7 +29,11 @@ class Actor : public GraphObject
 class Player : public Actor
 {
   public:
-    Player(StudentWorld* world, int imageID, int startX, int startY, int playerNum) : Actor(world, imageID, startX, startY, 0), ticks_to_move(0), waiting_to_roll(true), m_playernumber(playerNum), alive(true), m_activation(false), m_numStars(0) {}
+    Player(StudentWorld* world, int imageID, int startX, int startY, int playerNum) : Actor(world, imageID, startX, startY, 0), ticks_to_move(0), waiting_to_roll(true), m_playernumber(playerNum), alive(true), m_activation(false), m_numStars(0)
+    {
+        start_x = getX() / SPRITE_WIDTH;
+        start_y = getY()/SPRITE_HEIGHT;
+    }
     
     void addStar() { m_numStars += 1;}
     void updateCoinBalance(int coins) { m_numCoins += coins;}
@@ -43,8 +47,12 @@ class Player : public Actor
     bool canActivate(){return m_activation;};
     void setActivation(bool act){m_activation = act;};
     void deadEnd();
+    bool atFork();
+    void chooseDirection(int dir);
     
   private:
+    int start_x;
+    int start_y;
     bool m_activation;
     int ticks_to_move;
     bool waiting_to_roll;
@@ -52,6 +60,10 @@ class Player : public Actor
     int m_numStars;
     int m_playernumber;
     bool alive;
+    bool right_open;
+    bool left_open;
+    bool up_open;
+    bool down_open;
 
 };
 
