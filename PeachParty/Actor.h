@@ -10,29 +10,31 @@ class StudentWorld;
 
 class Actor : public GraphObject
 {
-public:
-    Actor(StudentWorld* world, int imageID, int startX, int startY, int startDirection, int depth, double size) : GraphObject(imageID, startX, startY, right, 0, 1.0), m_world(world), sprite_direction(0) {}
+  public:
+    Actor(StudentWorld* world, int imageID, int startX, int startY, int depth) : GraphObject(imageID, startX, startY, right, depth, 1.0), m_world(world), sprite_direction(0) {}
     
     virtual void doSomething() = 0;
+    void setWalkAngle(int angle) { m_walk_angle = angle; }
     StudentWorld* getWorld() { return m_world; }
-    void setWalkDirection(int walkdir) { m_walkdirection = walkdir; }
-    int getWalkDirection() const { return m_walkdirection; }
+    int getWalkAngle() const { return m_walk_angle; }
     virtual ~Actor() {}
     
     
-private:
+  private:
     StudentWorld* m_world;
     int sprite_direction;
-    int m_walkdirection;
+    int m_walk_angle;
 };
 
 class Player : public Actor
 {
-public:
-    Player(StudentWorld* world, int imageID, int startX, int startY, int playerNum) : Actor(world, imageID, startX, startY, right, 0, 1.0), ticks_to_move(0), waiting_to_roll(true), m_playernumber(playerNum), alive(true), m_activation(false) {}
+  public:
+    Player(StudentWorld* world, int imageID, int startX, int startY, int playerNum) : Actor(world, imageID, startX, startY, 0), ticks_to_move(0), waiting_to_roll(true), m_playernumber(playerNum), alive(true), m_activation(false), m_numStars(0) {}
     
+    void addStar() { m_numStars += 1;}
     void updateCoinBalance(int coins) { m_numCoins += coins;}
     int numCoins() const { return m_numCoins; }
+    int numStars() const { return m_numStars; }
     void die() { alive = false; return; }
     virtual void doSomething();
     int dieRoll();
@@ -40,12 +42,14 @@ public:
     bool isWaiting(){return waiting_to_roll;};
     bool canActivate(){return m_activation;};
     void setActivation(bool act){m_activation = act;};
+    void deadEnd();
     
-private:
+  private:
     bool m_activation;
     int ticks_to_move;
     bool waiting_to_roll;
     int m_numCoins;
+    int m_numStars;
     int m_playernumber;
     bool alive;
 
@@ -53,33 +57,33 @@ private:
 
 class Peach : public Player
 {
-public:
+  public:
     Peach(StudentWorld* world, int board_x, int board_y, int playerNum) : Player(world, IID_PEACH, SPRITE_WIDTH * board_x, SPRITE_HEIGHT * board_y, 1) {}
     
-private:
+  private:
 };
 
 class Yoshi : public Player
 {
-public:
+  public:
     Yoshi(StudentWorld* world, int board_x, int board_y, int playerNum) : Player(world, IID_YOSHI, SPRITE_WIDTH * board_x, SPRITE_HEIGHT * board_y, 2) {}
     
-private:
+  private:
 };
 
 class Square : public Actor
 {
-public:
-    Square(StudentWorld* world, int imageID, int startX, int startY) : Actor(world, imageID, startX, startY, right, 1, 1.0) {}
+  public:
+    Square(StudentWorld* world, int imageID, int startX, int startY, int startDirection) : Actor(world, imageID, startX, startY, 1) {}
     virtual ~Square() {}
     void intersection();
-private:
+  private:
 };
 
 class CoinSquare : public Square
 {
-public:
-    CoinSquare(StudentWorld* world, int imageID, int startX, int startY) : Square(world, imageID, startX, startY), m_active(true) {}
+  public:
+    CoinSquare(StudentWorld* world, int imageID, int startX, int startY) : Square(world, imageID, startX, startY, right), m_active(true) {}
     void coinDifference(int coins) { m_player->updateCoinBalance(coins); }
     bool isActive() { return m_active; }
     virtual void doSomething();
@@ -87,7 +91,7 @@ public:
     
     //virtual void activate(){m_active = true;};
     
-private:
+  private:
     Player* m_player;
     bool m_active;
     //virtual void doSomethingElse() = 0;
@@ -95,35 +99,67 @@ private:
     
 class BlueCoinSquare : public CoinSquare
 {
-public:
+  public:
     BlueCoinSquare(StudentWorld* world, int board_x, int board_y) : CoinSquare(world, IID_BLUE_COIN_SQUARE, SPRITE_WIDTH * board_x, SPRITE_HEIGHT * board_y) {}
     
-private:
+  private:
     //virtual void doSomethingElse();
 };
     
 class RedCoinSquare : public CoinSquare
 {
-public:
+  public:
     RedCoinSquare(StudentWorld* world, int board_x, int board_y) : CoinSquare(world, IID_RED_COIN_SQUARE, SPRITE_WIDTH * board_x, SPRITE_HEIGHT * board_y) {}
     
-private:
+  private:
     //virtual void doSomethingElse();
 };
 
 class DirSquare : public Square
 {
-public:
-    DirSquare(StudentWorld* world, int board_x, int board_y) : Square(world, IID_DIR_SQUARE, SPRITE_WIDTH * board_x, SPRITE_HEIGHT * board_y) {}
-    virtual void doSomething() = 0;
+  public:
+    DirSquare(StudentWorld* world, int startX, int startY, int startDirection) : Square(world, IID_DIR_SQUARE, startX, startY, startDirection) {setDirection(startDirection);}
+    virtual void doSomething();
 
-    
-private:
+  private:
 };
 
+class StarSquare : public Square
+{
+  public:
+    StarSquare(StudentWorld* world, int board_x, int board_y) : Square(world, IID_STAR_SQUARE, SPRITE_WIDTH * board_x, SPRITE_HEIGHT * board_y, right) {}
+    virtual void doSomething();
 
+};
 
+class EventSquare : public Square
+{
+  public:
+    EventSquare(StudentWorld* world, int board_x, int board_y) : Square(world, IID_EVENT_SQUARE, SPRITE_WIDTH * board_x, SPRITE_HEIGHT * board_y, right) {}
+    virtual void doSomething();
 
+};
 
+class BankSquare : public Square
+{
+  public:
+    BankSquare(StudentWorld* world, int board_x, int board_y) : Square(world, IID_BANK_SQUARE, SPRITE_WIDTH * board_x, SPRITE_HEIGHT * board_y, right) {}
+    virtual void doSomething();
+
+};
+
+class Bowser : public Actor
+{
+  public:
+    Bowser(StudentWorld* world, int board_x, int board_y) : Actor(world, IID_BOWSER, board_x, board_y, 0) {}
+    virtual void doSomething();
+};
+
+class Boo : public Actor
+{
+  public:
+    Boo(StudentWorld* world, int board_x, int board_y) : Actor(world, IID_BOO, board_x, board_y, 0) {}
+    virtual void doSomething();
+};
 
 #endif // ACTOR_H_

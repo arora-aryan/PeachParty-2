@@ -19,17 +19,19 @@ class StudentWorld : public GameWorld
     ~StudentWorld();
     Board getBoard() { return m_board; }
     void coinPlayerOverlap();
-    
-    //void activateCoinsPeach();
-    //void activateCoinsYoshi();
+    void encounterDirSquare();
+    void starPlayerOverlap();
+
 
     
 private:
+    static const int left = 180;
+    static const int right = 0;
+    static const int up = 90;
+    static const int down = 270;
     Player* m_peach;
     Player* m_yoshi;
     std::vector<Actor*> m_actors;
-    std::vector<Actor*> m_coinsquares;
-
     Board m_board;
 };
 
