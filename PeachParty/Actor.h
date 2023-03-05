@@ -29,9 +29,9 @@ class Actor : public GraphObject
 class Player : public Actor
 {
   public:
-    Player(StudentWorld* world, int imageID, int startX, int startY, int playerNum) : Actor(world, imageID, startX, startY, 0), ticks_to_move(0), waiting_to_roll(true), m_playernumber(playerNum), alive(true), m_activation(false), m_numStars(0), waiting_to_move(false), m_bankActivation(false)
+    Player(StudentWorld* world, int imageID, int startX, int startY, int playerNum) : Actor(world, imageID, startX, startY, 0), ticks_to_move(0), waiting_to_roll(true), m_playernumber(playerNum), alive(true), m_activation(false), m_numStars(0), waiting_to_move(false), m_bankActivation(false), m_eventActivation(true)
     {
-        start_x = getX() / SPRITE_WIDTH;
+        start_x = getX()/SPRITE_WIDTH;
         start_y = getY()/SPRITE_HEIGHT;
     }
     
@@ -52,9 +52,13 @@ class Player : public Actor
     bool hasTicks(){return ticks_to_move != 0;};
     bool canActivateBank(){return m_bankActivation;};
     void setBankActivation(bool act){m_bankActivation = act;};
-
+    bool canActivateEvent(){return m_eventActivation;};
+    void setEventActivation(bool act){m_eventActivation = act;};
+    void setTicks(int ticks){ticks_to_move = ticks;};
+    int getTicks(){return ticks_to_move;};
     
   private:
+    bool m_eventActivation;
     bool m_bankActivation;
     bool waiting_to_move;
     int start_x;

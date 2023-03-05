@@ -14,7 +14,7 @@ GameWorld* createStudentWorld(string assetPath)
 // Students:  Add code to this file, StudentWorld.h, Actor.h, and Actor.cpp
 
 StudentWorld::StudentWorld(string assetPath)
-: GameWorld(assetPath)
+: GameWorld(assetPath), m_num_squares(0)
 {}
 
 int StudentWorld::init()
@@ -257,7 +257,6 @@ void StudentWorld::starPlayerOverlap()
 
 void StudentWorld::bankPlayerOverlap()
 {
-    cerr<<"bank has " << m_banktotal << endl;
     int peach_x = m_peach->getX()/SPRITE_WIDTH;
     int peach_y = m_peach->getY()/SPRITE_HEIGHT;
     int yoshi_x = m_yoshi->getX()/SPRITE_WIDTH;
@@ -322,6 +321,104 @@ void StudentWorld::bankPlayerOverlap()
                 }
         }
     }
+}
+
+void StudentWorld::eventPlayerOverlap()
+{
+    int peach_x = m_peach->getX()/SPRITE_WIDTH;
+    int peach_y = m_peach->getY()/SPRITE_HEIGHT;
+    int yoshi_x = m_yoshi->getX()/SPRITE_WIDTH;
+    int yoshi_y = m_yoshi->getY()/SPRITE_HEIGHT;
+    
+    
+    if(m_yoshi->canActivateEvent() && m_yoshi->getX() % 16 == 0 && m_yoshi->getY() % 16 == 0 && !m_yoshi->hasTicks())
+    {
+        Board::GridEntry ge = getBoard().getContentsOf(yoshi_x, yoshi_y);
+        switch (ge)
+        {
+            case Board::event_square:
+                switch (chooseRandomEvent())
+                {
+                    case 1:
+                        swapPlayers();
+                        m_yoshi->setEventActivation(false);
+                        break;
+                    case 2:
+                        randomTeleport(m_yoshi);
+                        m_yoshi->setEventActivation(false);
+                    default:
+                        break;
+                }
+        }
+    }
+    if(m_peach->canActivateEvent() && m_peach->getX() % 16 == 0 && m_peach->getY() % 16 == 0 && !m_peach->hasTicks())
+    {
+        Board::GridEntry ge = getBoard().getContentsOf(peach_x, peach_y);
+        switch (ge)
+        {
+            case Board::event_square:
+                switch (chooseRandomEvent())
+                {
+                    case 1:
+                        swapPlayers();
+                        m_peach->setEventActivation(false);
+                        break;
+                    case 2:
+                        randomTeleport(m_peach);
+                        m_peach->setEventActivation(false);
+                    default:
+                        break;
+                }
+        }
+    }
+}
+
+int StudentWorld::chooseRandomEvent()
+{
+    int eventnum = randInt(1, 3);
+    return eventnum;
+}
+
+void StudentWorld::swapPlayers()
+{
+    int yoshi_new_x = m_peach->getX();
+    int yoshi_new_y = m_peach->getY();
+    int yoshi_new_ticks = m_peach->getTicks();
+    int yoshi_new_angle = m_peach->getWalkAngle();
+    int yoshi_new_facing_direction = m_peach->getDirection();
+    
+    playSound(SOUND_PLAYER_TELEPORT);
+    
+    m_peach->setWalkAngle(m_yoshi->getWalkAngle());
+    m_yoshi->setWalkAngle(yoshi_new_angle);
+
+    m_peach->setDirection(m_yoshi->getDirection());
+    m_yoshi->setDirection(yoshi_new_facing_direction);
+    
+    m_peach->moveTo(m_yoshi->getX(), m_yoshi->getY());
+    m_yoshi->moveTo(yoshi_new_x, yoshi_new_y);
+
+    m_peach->setTicks(m_yoshi->getTicks());
+    m_yoshi->setTicks(yoshi_new_ticks);
+}
+
+void StudentWorld::randomTeleport(Player *m_player)
+{
+    int x;
+    int y;
+    bool getResult = false;
+    
+    while(!getResult)
+    {
+        x = randInt(0, 16);
+        y = randInt(0, 16);
+        
+        Board::GridEntry ge = getBoard().getContentsOf(x,y);
+        if(ge != Board::empty)
+            getResult = true;
+    }
+    playSound(SOUND_PLAYER_TELEPORT);
+    m_player->moveTo(x * SPRITE_WIDTH, y * SPRITE_HEIGHT);
 }
 
 void StudentWorld::cleanUp()

@@ -16,7 +16,6 @@ void Player::doSomething()
         return;
     
     bool overlapping_dir = getWorld()->isPlayerDirOverlap(board_x, board_y);
-
     
     if (waiting_to_roll == true && ((getX() % 16 == 0) && (getY() % 16 == 0)))
     {
@@ -44,10 +43,10 @@ void Player::doSomething()
     
     if(atFork() == true && overlapping_dir == false && getX() % 16 == 0 && getY() % 16 == 0)
     {
-        bool rightOpen = (getWorld()->getBoard().getContentsOf(board_x+1, board_y) != Board::empty);
-        bool leftOpen = (getWorld()->getBoard().getContentsOf(board_x-1, board_y) != Board::empty);
-        bool upOpen = (getWorld()->getBoard().getContentsOf(board_x, board_y+1) != Board::empty);
-        bool downOpen = (getWorld()->getBoard().getContentsOf(board_x, board_y-1) != Board::empty);
+        bool right_open = (getWorld()->getBoard().getContentsOf(board_x+1, board_y) != Board::empty);
+        bool left_open = (getWorld()->getBoard().getContentsOf(board_x-1, board_y) != Board::empty);
+        bool up_open = (getWorld()->getBoard().getContentsOf(board_x, board_y+1) != Board::empty);
+        bool down_open = (getWorld()->getBoard().getContentsOf(board_x, board_y-1) != Board::empty);
         
         bool hasMoved = false;
         while(!hasMoved)
@@ -57,7 +56,7 @@ void Player::doSomething()
                 default:
                     return;
                 case ACTION_DOWN:
-                    if(!downOpen || getWalkAngle() == up)
+                    if(!down_open || getWalkAngle() == up)
                     {
                         break;
                     }
@@ -67,7 +66,7 @@ void Player::doSomething()
                     break;
                 case ACTION_UP:
                     cerr<<"press up"<<endl;
-                    if(!upOpen || getWalkAngle() == down)
+                    if(!up_open || getWalkAngle() == down)
                     {
                         cerr<<"you cant go" << up <<endl;
                         break;
@@ -80,7 +79,7 @@ void Player::doSomething()
                     break;
                 case ACTION_RIGHT:
                     cerr<<"press right"<<endl;
-                    if(!rightOpen || getWalkAngle() == left)
+                    if(!right_open || getWalkAngle() == left)
                     {
                         cerr<<"you cant go" << right <<endl;
                         break;
@@ -94,7 +93,7 @@ void Player::doSomething()
                     break;
                 case ACTION_LEFT:
                     cerr<<"press left"<<endl;
-                    if(!leftOpen || getWalkAngle() == right)
+                    if(!left_open || getWalkAngle() == right)
                     {
                         cerr<<"you cant go" << left <<endl;
                         break;
@@ -115,9 +114,9 @@ void Player::doSomething()
     if (waiting_to_roll == false && ticks_to_move >= 0)
     {
         waiting_to_move = true;
-        cerr<<12<<endl;
         m_activation = true;
         m_bankActivation = true;
+        m_eventActivation = true;
         
         if((getX() % 16 == 0) && (getY() % 16 == 0))
         {
@@ -142,45 +141,45 @@ void Player::deadEnd()
     int board_x = getX()/SPRITE_WIDTH;
     int board_y = getY()/SPRITE_HEIGHT;
         
-    bool rightOpen = (getWorld()->getBoard().getContentsOf(board_x+1, board_y) != Board::empty);
-    bool leftOpen = (getWorld()->getBoard().getContentsOf(board_x-1, board_y) != Board::empty);
-    bool upOpen = (getWorld()->getBoard().getContentsOf(board_x, board_y+1) != Board::empty);
-    bool downOpen = (getWorld()->getBoard().getContentsOf(board_x, board_y-1) != Board::empty);
+    bool right_open = (getWorld()->getBoard().getContentsOf(board_x+1, board_y) != Board::empty);
+    bool left_open = (getWorld()->getBoard().getContentsOf(board_x-1, board_y) != Board::empty);
+    bool up_open = (getWorld()->getBoard().getContentsOf(board_x, board_y+1) != Board::empty);
+    bool down_open = (getWorld()->getBoard().getContentsOf(board_x, board_y-1) != Board::empty);
     
-    if (getWalkAngle() == right && !rightOpen)
+    if (getWalkAngle() == right && !right_open)
     {
-        if(upOpen && downOpen)
+        if(up_open && down_open)
             setWalkAngle(up);
-        else if (upOpen)
+        else if (up_open)
             setWalkAngle(up);
-        else if (downOpen)
+        else if (down_open)
             setWalkAngle(down);
     }
-    else if (getWalkAngle() == left && !leftOpen)
+    else if (getWalkAngle() == left && !left_open)
     {
-        if(upOpen && downOpen)
+        if(up_open && down_open)
             setWalkAngle(up);
-        else if (upOpen)
+        else if (up_open)
             setWalkAngle(up);
-        else if (downOpen)
+        else if (down_open)
             setWalkAngle(down);
     }
-    else if (getWalkAngle() == up && !upOpen)
+    else if (getWalkAngle() == up && !up_open)
     {
-        if(rightOpen && downOpen)
+        if(right_open && down_open)
             setWalkAngle(right);
-        else if (rightOpen)
+        else if (right_open)
             setWalkAngle(right);
-        else if (leftOpen)
+        else if (left_open)
             setWalkAngle(left);
     }
-    else if (getWalkAngle() == down && !downOpen)
+    else if (getWalkAngle() == down && !down_open)
     {
-        if(rightOpen && downOpen)
+        if(right_open && down_open)
             setWalkAngle(right);
-        else if (rightOpen)
+        else if (right_open)
             setWalkAngle(right);
-        else if (leftOpen)
+        else if (left_open)
             setWalkAngle(left);
     }
 }
@@ -273,9 +272,8 @@ bool Player::atFork()
     return at_fork;
 }
 
-void CoinSquare::doSomething() {
-    if(!m_active)
-        return;
+void CoinSquare::doSomething()
+{
     getWorld()->coinPlayerOverlap();
 }
 
@@ -296,7 +294,11 @@ void BankSquare::doSomething()
     getWorld()->bankPlayerOverlap();
 }
 
-void EventSquare::doSomething(){}
+void EventSquare::doSomething()
+{
+    getWorld()->eventPlayerOverlap();
+}
+
 void Bowser::doSomething(){}
 void Boo::doSomething(){}
 

@@ -22,14 +22,18 @@ class StudentWorld : public GameWorld
     void encounterDirSquare();
     void starPlayerOverlap();
     void bankPlayerOverlap();
-    //void eventPlayerOverlap();
+    void eventPlayerOverlap();
     bool isPlayerDirOverlap(int x, int y);
+    int chooseRandomEvent();
+    void swapPlayers();
+    void randomTeleport(Player *m_player);
     
   private:
     static const int left = 180;
     static const int right = 0;
     static const int up = 90;
     static const int down = 270;
+    int m_num_squares;
     int m_banktotal;
     Player* m_peach;
     Player* m_yoshi;
