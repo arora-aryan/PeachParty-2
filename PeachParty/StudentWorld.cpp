@@ -257,6 +257,7 @@ void StudentWorld::starPlayerOverlap()
 
 void StudentWorld::bankPlayerOverlap()
 {
+    cerr<<"bank has " << m_banktotal << endl;
     int peach_x = m_peach->getX()/SPRITE_WIDTH;
     int peach_y = m_peach->getY()/SPRITE_HEIGHT;
     int yoshi_x = m_yoshi->getX()/SPRITE_WIDTH;
@@ -285,7 +286,10 @@ void StudentWorld::bankPlayerOverlap()
                     }
                 }
                 else
+                {
                     m_yoshi->updateCoinBalance(m_banktotal);
+                    m_yoshi->setBankActivation(false);
+                }
         }
     }
     
@@ -312,7 +316,10 @@ void StudentWorld::bankPlayerOverlap()
                     }
                 }
                 else
+                {
                     m_peach->updateCoinBalance(m_banktotal);
+                    m_peach->setBankActivation(false);
+                }
         }
     }
 }
