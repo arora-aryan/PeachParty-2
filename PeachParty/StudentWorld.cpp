@@ -15,10 +15,7 @@ GameWorld* createStudentWorld(string assetPath)
 
 StudentWorld::StudentWorld(string assetPath)
 : GameWorld(assetPath)
-{
-    m_peach = nullptr;
-    m_yoshi = nullptr;
-}
+{}
 
 int StudentWorld::init()
 {
@@ -77,11 +74,11 @@ int StudentWorld::init()
                         break;
                     case Board::bowser:
                         m_actors.push_back(new Bowser(this, i * SPRITE_WIDTH,j * SPRITE_HEIGHT));
-                        m_actors.push_back(new BlueCoinSquare(this, i, j));
+                        m_actors.push_back(new BlueCoinSquare(this,i, j));
                         break;
                     case Board::boo:
                         m_actors.push_back(new Boo(this, i *SPRITE_WIDTH,j * SPRITE_HEIGHT));
-                        m_actors.push_back(new BlueCoinSquare(this, i, j));
+                        m_actors.push_back(new BlueCoinSquare(this,i, j));
                         break;
                 }
             }
@@ -154,11 +151,29 @@ void StudentWorld::coinPlayerOverlap()
     
 }
 
-
+bool StudentWorld::isPlayerDirOverlap(int x, int y)
+{
+    Board::GridEntry ge = getBoard().getContentsOf(x,y);
+    switch (ge)
+    {
+        case Board::left_dir_square:
+            return true;
+            break;
+        case Board::right_dir_square:
+            return true;
+            break;
+        case Board::up_dir_square:
+            return true;
+            break;
+        case Board::down_dir_square:
+            return true;
+            break;
+    }
+    return false;
+}
 
 void StudentWorld::encounterDirSquare()
 {
-    
     int peach_x = m_peach->getX()/SPRITE_WIDTH;
     int peach_y = m_peach->getY()/SPRITE_HEIGHT;
     int yoshi_x = m_yoshi->getX()/SPRITE_WIDTH;
@@ -240,29 +255,72 @@ void StudentWorld::starPlayerOverlap()
     }
 }
 
+void StudentWorld::bankPlayerOverlap()
+{
+    int peach_x = m_peach->getX()/SPRITE_WIDTH;
+    int peach_y = m_peach->getY()/SPRITE_HEIGHT;
+    int yoshi_x = m_yoshi->getX()/SPRITE_WIDTH;
+    int yoshi_y = m_yoshi->getY()/SPRITE_HEIGHT;
 
-
-
-
-
-
-
-
-
-
-
+    if(m_yoshi->canActivateBank() && m_yoshi->getX() % 16 == 0 && m_yoshi->getY() % 16 == 0)
+    {
+        Board::GridEntry ge = getBoard().getContentsOf(yoshi_x,yoshi_y);
+        switch (ge)
+        {
+            case Board::bank_square:
+                playSound(SOUND_GIVE_STAR);
+                if(m_yoshi->hasTicks())
+                {
+                    if(m_yoshi->numCoins() < 5)
+                    {
+                        m_banktotal += m_yoshi->numCoins();
+                        m_yoshi->updateCoinBalance(-(m_yoshi->numCoins()));
+                        m_yoshi->setBankActivation(false);
+                    }
+                    else
+                    {
+                        m_banktotal += 5;
+                        m_yoshi->updateCoinBalance(-5);
+                        m_yoshi->setBankActivation(false);
+                    }
+                }
+                else
+                    m_yoshi->updateCoinBalance(m_banktotal);
+        }
+    }
+    
+    if(m_peach->canActivateBank() && m_peach->getX() % 16 == 0 && m_peach->getY() % 16 == 0)
+    {
+        Board::GridEntry ge = getBoard().getContentsOf(peach_x,peach_y);
+        switch (ge)
+        {
+            case Board::bank_square:
+                playSound(SOUND_GIVE_STAR);
+                if(m_peach->hasTicks())
+                {
+                    if(m_peach->numCoins() < 5)
+                    {
+                        m_banktotal += m_peach->numCoins();
+                        m_peach->updateCoinBalance(-(m_peach->numCoins()));
+                        m_peach->setBankActivation(false);
+                    }
+                    else
+                    {
+                        m_banktotal += 5;
+                        m_peach->updateCoinBalance(-5);
+                        m_peach->setBankActivation(false);
+                    }
+                }
+                else
+                    m_peach->updateCoinBalance(m_banktotal);
+        }
+    }
+}
 
 void StudentWorld::cleanUp()
 {
-    if (m_peach != nullptr) {
-            delete m_peach;
-            m_peach = nullptr;
-        }
-    if (m_yoshi != nullptr) {
-            delete m_yoshi;
-            m_yoshi = nullptr;
-        }
-        
+    delete m_peach;
+    delete m_yoshi;
     for (vector<Actor*>::iterator it = m_actors.begin(); it != m_actors.end(); it++)
     {
         delete *it;

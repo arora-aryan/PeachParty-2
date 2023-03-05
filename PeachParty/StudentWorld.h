@@ -21,14 +21,16 @@ class StudentWorld : public GameWorld
     void coinPlayerOverlap();
     void encounterDirSquare();
     void starPlayerOverlap();
-
-
+    void bankPlayerOverlap();
+    //void eventPlayerOverlap();
+    bool isPlayerDirOverlap(int x, int y);
     
-private:
+  private:
     static const int left = 180;
     static const int right = 0;
     static const int up = 90;
     static const int down = 270;
+    int m_banktotal;
     Player* m_peach;
     Player* m_yoshi;
     std::vector<Actor*> m_actors;

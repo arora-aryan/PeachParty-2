@@ -29,7 +29,7 @@ class Actor : public GraphObject
 class Player : public Actor
 {
   public:
-    Player(StudentWorld* world, int imageID, int startX, int startY, int playerNum) : Actor(world, imageID, startX, startY, 0), ticks_to_move(0), waiting_to_roll(true), m_playernumber(playerNum), alive(true), m_activation(false), m_numStars(0), waiting_to_move(false)
+    Player(StudentWorld* world, int imageID, int startX, int startY, int playerNum) : Actor(world, imageID, startX, startY, 0), ticks_to_move(0), waiting_to_roll(true), m_playernumber(playerNum), alive(true), m_activation(false), m_numStars(0), waiting_to_move(false), m_bankActivation(false)
     {
         start_x = getX() / SPRITE_WIDTH;
         start_y = getY()/SPRITE_HEIGHT;
@@ -49,9 +49,13 @@ class Player : public Actor
     void deadEnd();
     bool atFork();
     void setWaiting(bool wait){waiting_to_move = wait;};
-    bool chooseDirection(int dir);
+    bool hasTicks(){return ticks_to_move != 0;};
+    bool canActivateBank(){return m_bankActivation;};
+    void setBankActivation(bool act){m_bankActivation = act;};
+
     
   private:
+    bool m_bankActivation;
     bool waiting_to_move;
     int start_x;
     int start_y;
@@ -175,5 +179,4 @@ class Boo : public Actor
     Boo(StudentWorld* world, int board_x, int board_y) : Actor(world, IID_BOO, board_x, board_y, 0) {}
     virtual void doSomething();
 };
-
 #endif // ACTOR_H_

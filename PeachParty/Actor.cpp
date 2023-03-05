@@ -7,11 +7,16 @@ using namespace std;
 
 void Player::doSomething()
 {
+    cerr<<"i have: " << numCoins() << "coins" << endl;
+    cerr<<"i have " << numStars() << "stars" << endl;
     int board_x = getX()/SPRITE_WIDTH;
     int board_y = getY()/SPRITE_HEIGHT;
     
     if (alive == false)
         return;
+    
+    bool overlapping_dir = getWorld()->isPlayerDirOverlap(board_x, board_y);
+
     
     if (waiting_to_roll == true && ((getX() % 16 == 0) && (getY() % 16 == 0)))
     {
@@ -23,7 +28,6 @@ void Player::doSomething()
                 default:
                     return;
                 case ACTION_ROLL: {
-                    cerr<<"ive arrived"<<endl;
                     int die_roll = randInt(1,10);
                     ticks_to_move = die_roll * 8;
                     waiting_to_roll = false;
@@ -38,11 +42,8 @@ void Player::doSomething()
         
     }
     
-    if(atFork() == true && getX() % 16 == 0 && getY() % 16 == 0)
+    if(atFork() == true && overlapping_dir == false && getX() % 16 == 0 && getY() % 16 == 0)
     {
-        
-        cerr<<"at fork"<<endl;
-        
         bool rightOpen = (getWorld()->getBoard().getContentsOf(board_x+1, board_y) != Board::empty);
         bool leftOpen = (getWorld()->getBoard().getContentsOf(board_x-1, board_y) != Board::empty);
         bool upOpen = (getWorld()->getBoard().getContentsOf(board_x, board_y+1) != Board::empty);
@@ -56,36 +57,30 @@ void Player::doSomething()
                 default:
                     return;
                 case ACTION_DOWN:
-                    cerr<<"press down"<<endl;
-                    if(!downOpen)
+                    if(!downOpen || getWalkAngle() == up)
                     {
-                        cerr<<"you cant go" << down <<endl;
                         break;
                     }
-                    cerr<<"yes im changing"<<endl;
-                    cerr<<ticks_to_move<<endl;
-
                     setWalkAngle(down);
                     waiting_to_move = false;
                     hasMoved = true;
                     break;
                 case ACTION_UP:
                     cerr<<"press up"<<endl;
-                    if(!upOpen)
+                    if(!upOpen || getWalkAngle() == down)
                     {
                         cerr<<"you cant go" << up <<endl;
                         break;
                     }
                     cerr<<"yes im changing"<<endl;
                     cerr<<ticks_to_move<<endl;
-
                     setWalkAngle(up);
                     waiting_to_move = false;
                     hasMoved = true;
                     break;
                 case ACTION_RIGHT:
                     cerr<<"press right"<<endl;
-                    if(!rightOpen)
+                    if(!rightOpen || getWalkAngle() == left)
                     {
                         cerr<<"you cant go" << right <<endl;
                         break;
@@ -99,7 +94,7 @@ void Player::doSomething()
                     break;
                 case ACTION_LEFT:
                     cerr<<"press left"<<endl;
-                    if(!leftOpen)
+                    if(!leftOpen || getWalkAngle() == right)
                     {
                         cerr<<"you cant go" << left <<endl;
                         break;
@@ -122,6 +117,7 @@ void Player::doSomething()
         waiting_to_move = true;
         cerr<<12<<endl;
         m_activation = true;
+        m_bankActivation = true;
         
         if((getX() % 16 == 0) && (getY() % 16 == 0))
         {
@@ -139,74 +135,6 @@ void Player::doSomething()
         if (ticks_to_move == 0)
             waiting_to_roll = true;
     }
-}
-    
-
-bool Player::chooseDirection(int dir)
-{
-    int board_x = getX()/SPRITE_WIDTH;
-    int board_y = getY()/SPRITE_HEIGHT;
-    
-    bool rightOpen = (getWorld()->getBoard().getContentsOf(board_x+1, board_y) != Board::empty);
-    bool leftOpen = (getWorld()->getBoard().getContentsOf(board_x-1, board_y) != Board::empty);
-    bool upOpen = (getWorld()->getBoard().getContentsOf(board_x, board_y+1) != Board::empty);
-    bool downOpen = (getWorld()->getBoard().getContentsOf(board_x, board_y-1) != Board::empty);
-    cerr<<"mydir"<<dir<<endl;
-    
-    if(dir == down)
-    {
-        cerr<<"hi"<<endl;
-        setWalkAngle(down);
-        moveAtAngle(getWalkAngle(), 2);
-    }
-    /*
-    switch(dir)
-    {
-        default:
-            return false;
-        
-        case ACTION_RIGHT:
-            if(getWalkAngle() == left || !rightOpen)
-            {
-                break;
-            }
-            setWalkAngle(right);
-            return true;
-            break;
-        
-        case ACTION_LEFT:
-            if(getWalkAngle() == right || !leftOpen)
-            {
-                break;
-            }
-            setWalkAngle(left);
-            return true;
-            break;
-        case ACTION_UP:
-            
-            if(getWalkAngle() == down || !upOpen)
-            {
-                break;
-            }
-            setWalkAngle(up);
-            return true;
-            break;
-             
-        case ACTION_DOWN:
-            
-            if(getWalkAngle() == up || !downOpen)
-            {
-                break;
-            }
-            setWalkAngle(down);
-            return true;
-            break;
-             
-    }
-     */
-    
-    return false;
-    
 }
 
 void Player::deadEnd()
@@ -356,10 +284,6 @@ void DirSquare::doSomething()
     getWorld()->encounterDirSquare();
 }
 
-//void RightDirSquare::doSomething(){}
-//void LeftDirSquare::doSomething(){}
-//void UpDirSquare::doSomething(){}
-//void DownDirSquare::doSomething(){}
 
 void StarSquare::doSomething()
 {
@@ -369,11 +293,10 @@ void StarSquare::doSomething()
 //this is next
 void BankSquare::doSomething()
 {
-    //getWorld()->bankPlayerOverlap();
+    getWorld()->bankPlayerOverlap();
 }
 
 void EventSquare::doSomething(){}
-
 void Bowser::doSomething(){}
 void Boo::doSomething(){}
 
