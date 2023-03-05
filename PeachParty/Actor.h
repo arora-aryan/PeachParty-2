@@ -29,7 +29,7 @@ class Actor : public GraphObject
 class Player : public Actor
 {
   public:
-    Player(StudentWorld* world, int imageID, int startX, int startY, int playerNum) : Actor(world, imageID, startX, startY, 0), ticks_to_move(0), waiting_to_roll(true), m_playernumber(playerNum), alive(true), m_activation(false), m_numStars(0), waiting_to_move(false), m_bankActivation(false), m_eventActivation(true), vortex(false)
+    Player(StudentWorld* world, int imageID, int startX, int startY, int playerNum) : Actor(world, imageID, startX, startY, 0), ticks_to_move(0), waiting_to_roll(true), m_playernumber(playerNum), alive(true), m_activation(false), m_numStars(0), waiting_to_move(false), m_bankActivation(false), m_eventActivation(true), vortex(false), m_bowserActivation(true)
     {
         start_x = getX()/SPRITE_WIDTH;
         start_y = getY()/SPRITE_HEIGHT;
@@ -58,8 +58,12 @@ class Player : public Actor
     int getTicks() const {return ticks_to_move;};
     void getVortex(){vortex = true;};
     bool hasVortex() const {return vortex;};
-    
+    bool canActivateBowser() const {return m_bowserActivation;};
+    void setBowserActivation(bool act){m_bowserActivation = act;};
+    void removeStars(){m_numStars = 0;};
+
   private:
+    bool m_bowserActivation;
     bool vortex;
     bool m_eventActivation;
     bool m_bankActivation;
@@ -173,17 +177,40 @@ class BankSquare : public Square
 
 };
 
-class Bowser : public Actor
+class Baddie : public Actor
 {
   public:
-    Bowser(StudentWorld* world, int board_x, int board_y) : Actor(world, IID_BOWSER, board_x, board_y, 0) {}
+    Baddie(StudentWorld* world, int iid, int board_x, int board_y) : Actor(world, iid, board_x, board_y, 0), m_paused(true), m_travel_distance(0), m_pause_counter(180) {}
     virtual void doSomething();
+    virtual void doSomethingPaused() = 0;
+    virtual int pickSquaresToMove() = 0;
+    virtual bool isPaused(){return m_paused;};
+    virtual void setPaused(bool p){m_paused = p;};
+
+  private:
+    bool m_paused;
+    int m_travel_distance;
+    int m_pause_counter;
 };
 
-class Boo : public Actor
+class Bowser : public Baddie
 {
   public:
-    Boo(StudentWorld* world, int board_x, int board_y) : Actor(world, IID_BOO, board_x, board_y, 0) {}
-    virtual void doSomething();
+    Bowser(StudentWorld* world, int board_x, int board_y) : Baddie(world, IID_BOWSER, board_x, board_y) {}
+
+  private:
+    void doSomethingPaused();
+    virtual int pickSquaresToMove();
+
+};
+
+class Boo : public Baddie
+{
+  public:
+    Boo(StudentWorld* world, int board_x, int board_y) : Baddie(world, IID_BOO, board_x, board_y) {}
+
+  private:
+    void doSomethingPaused();
+    virtual int pickSquaresToMove();
 };
 #endif // ACTOR_H_

@@ -27,6 +27,7 @@ class StudentWorld : public GameWorld
     int chooseRandomEvent(Player *m_player);
     void swapPlayers();
     void randomTeleport(Player *m_player);
+    void bowserPlayerPaused(Bowser *m_bowser);
     
   private:
     static const int left = 180;

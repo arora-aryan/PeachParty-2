@@ -117,6 +117,7 @@ void Player::doSomething()
         m_activation = true;
         m_bankActivation = true;
         m_eventActivation = true;
+        m_bowserActivation = true;
         
         if((getX() % 16 == 0) && (getY() % 16 == 0))
         {
@@ -299,6 +300,37 @@ void EventSquare::doSomething()
     getWorld()->eventPlayerOverlap();
 }
 
-void Bowser::doSomething(){}
-void Boo::doSomething(){}
+void Baddie::doSomething()
+{
+    if(m_paused)
+    {
+        doSomethingPaused();
+        m_pause_counter--;
+    }
+    if(m_pause_counter == 0)
+    {
+        int move = pickSquaresToMove();
+        
+    }
+    
+}
 
+void Bowser::doSomethingPaused()
+{
+    getWorld()->bowserPlayerPaused(this);
+}
+
+void Boo::doSomethingPaused()
+{
+    
+}
+
+int Boo::Baddie::pickSquaresToMove()
+{
+    return randInt(1, 3);
+}
+
+int Bowser::pickSquaresToMove()
+{
+    return randInt(1, 10);
+}

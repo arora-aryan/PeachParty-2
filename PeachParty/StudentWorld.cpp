@@ -434,6 +434,34 @@ void StudentWorld::randomTeleport(Player *m_player)
     m_player->moveTo(x * SPRITE_WIDTH, y * SPRITE_HEIGHT);
 }
 
+void StudentWorld::bowserPlayerPaused(Bowser *m_bowser)
+{
+    int randomevent = randInt(1, 2);
+    
+    if(m_yoshi->canActivateBowser() && !m_yoshi->hasTicks() && m_bowser->getX() == m_yoshi->getX() && m_bowser->getY() == m_yoshi->getY())
+    {
+        if(randomevent == 1)
+        {
+            m_yoshi->updateCoinBalance(-(m_yoshi->numCoins()));
+            m_yoshi->removeStars();
+            playSound(SOUND_BOWSER_ACTIVATE);
+        }
+        m_yoshi->setBowserActivation(false);
+    }
+    
+    if(m_peach->canActivateBowser() && m_peach->getX() % 16 == 0 && m_peach->getY() % 16 == 0 && !m_peach->hasTicks())
+    {
+        if(randomevent == 1)
+        {
+            m_peach->updateCoinBalance(-(m_peach->numCoins()));
+            m_peach->removeStars();
+            playSound(SOUND_BOWSER_ACTIVATE);
+        }
+        m_peach->setBowserActivation(false);
+    }
+
+}
+
 void StudentWorld::cleanUp()
 {
     delete m_peach;
