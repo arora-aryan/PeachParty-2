@@ -337,7 +337,7 @@ void StudentWorld::eventPlayerOverlap()
         switch (ge)
         {
             case Board::event_square:
-                switch (chooseRandomEvent())
+                switch (chooseRandomEvent(m_yoshi))
                 {
                     case 1:
                         swapPlayers();
@@ -346,6 +346,11 @@ void StudentWorld::eventPlayerOverlap()
                     case 2:
                         randomTeleport(m_yoshi);
                         m_yoshi->setEventActivation(false);
+                    case 3:
+                        playSound(SOUND_GIVE_VORTEX);
+                        m_yoshi->getVortex();
+                        m_yoshi->setEventActivation(false);
+
                     default:
                         break;
                 }
@@ -357,7 +362,7 @@ void StudentWorld::eventPlayerOverlap()
         switch (ge)
         {
             case Board::event_square:
-                switch (chooseRandomEvent())
+                switch (chooseRandomEvent(m_peach))
                 {
                     case 1:
                         swapPlayers();
@@ -366,6 +371,10 @@ void StudentWorld::eventPlayerOverlap()
                     case 2:
                         randomTeleport(m_peach);
                         m_peach->setEventActivation(false);
+                    case 3:
+                        playSound(SOUND_GIVE_VORTEX);
+                        m_peach->getVortex();
+                        m_peach->setEventActivation(false);
                     default:
                         break;
                 }
@@ -373,10 +382,14 @@ void StudentWorld::eventPlayerOverlap()
     }
 }
 
-int StudentWorld::chooseRandomEvent()
+int StudentWorld::chooseRandomEvent(Player* m_player)
 {
-    int eventnum = randInt(1, 3);
-    return eventnum;
+    if(m_player->hasVortex()){
+        return randInt(1, 2);
+    }
+    else{
+        return randInt(1, 3);
+    }
 }
 
 void StudentWorld::swapPlayers()

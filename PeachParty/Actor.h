@@ -29,7 +29,7 @@ class Actor : public GraphObject
 class Player : public Actor
 {
   public:
-    Player(StudentWorld* world, int imageID, int startX, int startY, int playerNum) : Actor(world, imageID, startX, startY, 0), ticks_to_move(0), waiting_to_roll(true), m_playernumber(playerNum), alive(true), m_activation(false), m_numStars(0), waiting_to_move(false), m_bankActivation(false), m_eventActivation(true)
+    Player(StudentWorld* world, int imageID, int startX, int startY, int playerNum) : Actor(world, imageID, startX, startY, 0), ticks_to_move(0), waiting_to_roll(true), m_playernumber(playerNum), alive(true), m_activation(false), m_numStars(0), waiting_to_move(false), m_bankActivation(false), m_eventActivation(true), vortex(false)
     {
         start_x = getX()/SPRITE_WIDTH;
         start_y = getY()/SPRITE_HEIGHT;
@@ -37,27 +37,30 @@ class Player : public Actor
     
     void addStar() { m_numStars += 1;}
     void updateCoinBalance(int coins) { m_numCoins += coins;}
-    int numCoins() const { return m_numCoins; }
-    int numStars() const { return m_numStars; }
+    int numCoins() const {return m_numCoins;}
+    int numStars() const {return m_numStars;}
     void die() { alive = false; return; }
     virtual void doSomething();
     int dieRoll();
     virtual ~Player() {}
-    bool isWaiting(){return waiting_to_roll;};
-    bool canActivate(){return m_activation;};
+    bool isWaiting() const {return waiting_to_roll;};
+    bool canActivate() const {return m_activation;};
     void setActivation(bool act){m_activation = act;};
     void deadEnd();
     bool atFork();
     void setWaiting(bool wait){waiting_to_move = wait;};
-    bool hasTicks(){return ticks_to_move != 0;};
-    bool canActivateBank(){return m_bankActivation;};
+    bool hasTicks() const {return ticks_to_move != 0;};
+    bool canActivateBank() const {return m_bankActivation;};
     void setBankActivation(bool act){m_bankActivation = act;};
-    bool canActivateEvent(){return m_eventActivation;};
+    bool canActivateEvent() const {return m_eventActivation;};
     void setEventActivation(bool act){m_eventActivation = act;};
     void setTicks(int ticks){ticks_to_move = ticks;};
-    int getTicks(){return ticks_to_move;};
+    int getTicks() const {return ticks_to_move;};
+    void getVortex(){vortex = true;};
+    bool hasVortex() const {return vortex;};
     
   private:
+    bool vortex;
     bool m_eventActivation;
     bool m_bankActivation;
     bool waiting_to_move;

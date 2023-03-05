@@ -24,7 +24,7 @@ class StudentWorld : public GameWorld
     void bankPlayerOverlap();
     void eventPlayerOverlap();
     bool isPlayerDirOverlap(int x, int y);
-    int chooseRandomEvent();
+    int chooseRandomEvent(Player *m_player);
     void swapPlayers();
     void randomTeleport(Player *m_player);
     
