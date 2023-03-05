@@ -34,9 +34,12 @@ class StudentWorld : public GameWorld
     void setDroppingSquare(int x, int y);
     void setVortex(int x, int y, int start_direction);
     void fireVortex(Vortex *m_vortex);
+    void determineText();
+    int winner();
 
     
   private:
+    std::string m_displayText;
     static const int left = 180;
     static const int right = 0;
     static const int up = 90;

@@ -85,7 +85,7 @@ int StudentWorld::init()
         }
     }
     
-    startCountdownTimer(5);  // this placeholder causes timeout after 5 seconds
+    startCountdownTimer(5);
     return GWSTATUS_CONTINUE_GAME;
 }
 
@@ -96,8 +96,15 @@ int StudentWorld::move()
 
     //setGameStatText("Game will end in a few seconds");
     
-    //if (timeRemaining() <= 0)
-        //return GWSTATUS_NOT_IMPLEMENTED;
+    if (timeRemaining() < 0)
+        return GWSTATUS_NOT_IMPLEMENTED;
+    
+    if(timeRemaining() == 0)
+        return winner();
+        //return GWSTATUS_PEACH_WON
+
+    determineText();
+    setGameStatText(m_displayText);
     
     m_peach->doSomething();
     m_yoshi->doSomething();
@@ -109,6 +116,28 @@ int StudentWorld::move()
     }
     
     return GWSTATUS_CONTINUE_GAME;
+}
+
+int StudentWorld::winner()
+{
+    return GWSTATUS_PEACH_WON;
+}
+
+void StudentWorld::determineText()
+{
+    std::string peach_text;
+    std::string yoshi_text;
+    int tr = timeRemaining();
+    
+    peach_text = "P1 Roll: " + to_string(m_peach->getTicks()/8) + " Stars: " + to_string(m_peach->numStars()) + " $$: " + to_string(m_peach->numCoins()) + " | ";
+    if(m_peach->hasVortex())
+        peach_text = "P1 Roll: " + to_string(m_peach->getTicks()/8) + "Stars: " + to_string(m_peach->numStars()) + "$$: " + to_string(m_peach->numCoins()) + "VOR |";
+ 
+    yoshi_text = " P2 Roll: " + to_string(m_yoshi->getTicks()/8) + " Stars: " + to_string(m_yoshi->numStars()) + " $$: " + to_string(m_yoshi->numCoins());
+    if(m_yoshi->hasVortex())
+        yoshi_text = "P2 Roll: " + to_string(m_yoshi->getTicks()/8) + " Stars: " + to_string(m_yoshi->numStars()) + " $$: " + to_string(m_yoshi->numCoins()) + " VOR";
+
+    m_displayText = peach_text + "Time: " + to_string(tr) + " | " + " Bank: " + to_string(m_banktotal) + " | " + yoshi_text;
 }
 
 void StudentWorld::coinPlayerOverlap()
