@@ -7,17 +7,33 @@ using namespace std;
 
 void Player::doSomething()
 {
-    cerr<<"mystars : "<<numStars()<<endl;
-    cerr<<"mycoins : "<<numCoins()<<endl;
     if (alive == false)
         return;
     
-    if(atFork() == true && waiting_to_move == true && getX() % 16 == 0 && getY() % 16 == 0)
-    {
-        cerr<<"at fork"<<endl;
-        chooseDirection(getWorld()->getAction(m_playernumber));
-    }
+    cerr<<waiting_to_move<<endl;
     
+    */
+    if(atFork() == true && getX() % 16 == 0 && getY() % 16 == 0)
+    {
+        
+        cerr<<"at fork"<<endl;
+
+        int temp_ticks = ticks_to_move;
+        ticks_to_move = 0;
+        cerr<<"down"<<down<<endl;
+        
+        int dir = 0;
+        while(dir==0)
+        {
+            dir = getWorld()->getAction(m_playernumber);
+        }
+        cerr<<"direction"<<dir<<endl;
+        if(chooseDirection(dir))
+        {
+            ticks_to_move = temp_ticks;
+        }
+    }
+    */
     if (waiting_to_roll == true && ((getX() % 16 == 0) && (getY() % 16 == 0)))
     {
         switch(getWorld()->getAction(m_playernumber))
@@ -35,7 +51,8 @@ void Player::doSomething()
         }
         
     }
-    if (waiting_to_roll == false)
+
+    if (waiting_to_roll == false && ticks_to_move >= 0)
     {
         m_activation = true;
         
@@ -57,9 +74,8 @@ void Player::doSomething()
 }
 
 //
-void Player::chooseDirection(int dir)
+bool Player::chooseDirection(int dir)
 {
-    //waiting_to_roll = true;
     int board_x = getX()/SPRITE_WIDTH;
     int board_y = getY()/SPRITE_HEIGHT;
     
@@ -68,50 +84,60 @@ void Player::chooseDirection(int dir)
     bool upOpen = (getWorld()->getBoard().getContentsOf(board_x, board_y+1) != Board::empty);
     bool downOpen = (getWorld()->getBoard().getContentsOf(board_x, board_y-1) != Board::empty);
     cerr<<"mydir"<<dir<<endl;
+    
+    if(dir == down)
+    {
+        cerr<<"hi"<<endl;
+        setWalkAngle(down);
+        moveAtAngle(getWalkAngle(), 2);
+    }
+    /*
     switch(dir)
     {
         default:
-            return;
+            return false;
+        
         case ACTION_RIGHT:
-            cerr<<"my walk angle"<<getWalkAngle()<< endl;
-
             if(getWalkAngle() == left || !rightOpen)
             {
                 break;
             }
             setWalkAngle(right);
-            waiting_to_move = false;
+            return true;
             break;
+        
         case ACTION_LEFT:
-            cerr<<"my walk angle"<<getWalkAngle()<< endl;
             if(getWalkAngle() == right || !leftOpen)
             {
                 break;
             }
             setWalkAngle(left);
-            waiting_to_move = false;
+            return true;
             break;
         case ACTION_UP:
-            cerr<<"my walk angle"<<getWalkAngle()<< endl;
-
+            
             if(getWalkAngle() == down || !upOpen)
             {
                 break;
             }
             setWalkAngle(up);
-            waiting_to_move = false;
+            return true;
             break;
+             
         case ACTION_DOWN:
-            cerr<<"my walk angle"<<getWalkAngle()<< endl;
-
+            
             if(getWalkAngle() == up || !downOpen)
             {
                 break;
             }
             setWalkAngle(down);
-            waiting_to_move = false;
+            return true;
             break;
+             
     }
+     */
+    
+    return false;
     
 }
 
@@ -165,7 +191,6 @@ void Player::deadEnd()
 
 bool Player::atFork()
 {
-    waiting_to_move = true;
     int board_x = getX()/SPRITE_WIDTH;
     int board_y = getY()/SPRITE_HEIGHT;
     
@@ -188,17 +213,14 @@ bool Player::atFork()
     if(getWalkAngle() == right)
     {
         if((getWorld()->getBoard().getContentsOf(board_x+1, board_y) != Board::empty)){
-            cerr<<"right open"<<endl;
             num_available_directions++;
         }
         
         if((getWorld()->getBoard().getContentsOf(board_x, board_y+1) != Board::empty)){
-            cerr<<"up open"<<endl;
             num_available_directions++;
 
         }
         if((getWorld()->getBoard().getContentsOf(board_x, board_y-1) != Board::empty)){
-            cerr<<"down open"<<endl;
             num_available_directions++;
         }
         
@@ -206,34 +228,28 @@ bool Player::atFork()
     else if(getWalkAngle() == left)
     {
         if((getWorld()->getBoard().getContentsOf(board_x-1, board_y) != Board::empty)){
-            cerr<<"left open"<<endl;
             num_available_directions++;
         }
         
         if((getWorld()->getBoard().getContentsOf(board_x, board_y+1) != Board::empty)){
-            cerr<<"up open"<<endl;
             num_available_directions++;
             
         }
         if((getWorld()->getBoard().getContentsOf(board_x, board_y-1) != Board::empty)){
-            cerr<<"down open"<<endl;
             num_available_directions++;
         }
     }
     else if(getWalkAngle() == up)
     {
         if((getWorld()->getBoard().getContentsOf(board_x+1, board_y) != Board::empty)){
-            cerr<<"right open"<<endl;
             num_available_directions++;
         }
         
         if((getWorld()->getBoard().getContentsOf(board_x-1, board_y) != Board::empty)){
-            cerr<<"left open"<<endl;
             num_available_directions++;
         }
         
         if((getWorld()->getBoard().getContentsOf(board_x, board_y+1) != Board::empty)){
-            cerr<<"up open"<<endl;
             num_available_directions++;
         }
         
@@ -241,30 +257,23 @@ bool Player::atFork()
     else if(getWalkAngle() == down)
     {
         if((getWorld()->getBoard().getContentsOf(board_x+1, board_y) != Board::empty)){
-            cerr<<"right open"<<endl;
             num_available_directions++;
         }
         
         if((getWorld()->getBoard().getContentsOf(board_x-1, board_y) != Board::empty)){
-            cerr<<"left open"<<endl;
             num_available_directions++;
         }
         if((getWorld()->getBoard().getContentsOf(board_x, board_y-1) != Board::empty)){
-            cerr<<"down open"<<endl;
             num_available_directions++;
         }
         
     }
-    
-
-    cerr<<"avail: " << num_available_directions<<endl;
-    // If there is more than one available direction, the character is at a fork
+        // If there is more than one available direction, the character is at a fork
     if (num_available_directions > 1) {
       at_fork = true;
     }
 
     // If at_fork is true, the character has reached a fork in the path
-    waiting_to_move = true;
     return at_fork;
 }
 

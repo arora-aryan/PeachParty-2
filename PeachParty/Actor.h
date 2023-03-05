@@ -48,7 +48,8 @@ class Player : public Actor
     void setActivation(bool act){m_activation = act;};
     void deadEnd();
     bool atFork();
-    void chooseDirection(int dir);
+    void setWaiting(bool wait){waiting_to_move = wait;};
+    bool chooseDirection(int dir);
     
   private:
     bool waiting_to_move;
