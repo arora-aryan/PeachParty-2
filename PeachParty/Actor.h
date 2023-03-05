@@ -18,7 +18,7 @@ class Actor : public GraphObject
     StudentWorld* getWorld() { return m_world; }
     int getWalkAngle() const { return m_walk_angle; }
     virtual ~Actor() {}
-    
+    virtual void deadEnd();
     
   private:
     StudentWorld* m_world;
@@ -35,8 +35,19 @@ class Player : public Actor
         start_y = getY()/SPRITE_HEIGHT;
     }
     
+    void allowAllActivation()
+    {   
+        m_activation = true;
+        m_bankActivation = true;
+        m_eventActivation = true;
+        m_bowserActivation = true;
+        m_booActivation = true;
+    }
+    void createVortex();
     void addStar() { m_numStars += 1;}
     void updateCoinBalance(int coins) { m_numCoins += coins;}
+    void setStarBalance(int stars) { m_numStars = stars;}
+    void setCoinBalance(int coins) { m_numCoins = coins;}
     int numCoins() const {return m_numCoins;}
     int numStars() const {return m_numStars;}
     void die() { alive = false; return; }
@@ -46,7 +57,6 @@ class Player : public Actor
     bool isWaiting() const {return waiting_to_roll;};
     bool canActivate() const {return m_activation;};
     void setActivation(bool act){m_activation = act;};
-    void deadEnd();
     bool atFork();
     void setWaiting(bool wait){waiting_to_move = wait;};
     bool hasTicks() const {return ticks_to_move != 0;};
@@ -61,8 +71,11 @@ class Player : public Actor
     bool canActivateBowser() const {return m_bowserActivation;};
     void setBowserActivation(bool act){m_bowserActivation = act;};
     void removeStars(){m_numStars = 0;};
+    bool canActivateBoo() const {return m_booActivation;};
+    void setBooActivation(bool act){m_booActivation = act;};
 
   private:
+    bool m_booActivation;
     bool m_bowserActivation;
     bool vortex;
     bool m_eventActivation;
@@ -180,14 +193,17 @@ class BankSquare : public Square
 class Baddie : public Actor
 {
   public:
-    Baddie(StudentWorld* world, int iid, int board_x, int board_y) : Actor(world, iid, board_x, board_y, 0), m_paused(true), m_travel_distance(0), m_pause_counter(180) {}
+    Baddie(StudentWorld* world, int iid, int board_x, int board_y) : Actor(world, iid, board_x, board_y, 0), m_paused(true), m_travel_distance(0), m_pause_counter(180), ticks_to_move(0), squares_to_move(0) {}
     virtual void doSomething();
     virtual void doSomethingPaused() = 0;
     virtual int pickSquaresToMove() = 0;
     virtual bool isPaused(){return m_paused;};
     virtual void setPaused(bool p){m_paused = p;};
+    virtual void specialTrick() = 0;
 
   private:
+    int ticks_to_move;
+    int squares_to_move;
     bool m_paused;
     int m_travel_distance;
     int m_pause_counter;
@@ -201,7 +217,7 @@ class Bowser : public Baddie
   private:
     void doSomethingPaused();
     virtual int pickSquaresToMove();
-
+    virtual void specialTrick();
 };
 
 class Boo : public Baddie
@@ -212,5 +228,15 @@ class Boo : public Baddie
   private:
     void doSomethingPaused();
     virtual int pickSquaresToMove();
+    virtual void specialTrick(){return;};
 };
-#endif // ACTOR_H_
+
+class Vortex : public Actor
+{
+  public:
+    Vortex(StudentWorld* world, int board_x, int board_y, int start_dir) : Actor(world, IID_VORTEX, board_x, board_y, 0) {setWalkAngle(start_dir);}
+    virtual void doSomething();
+  private:
+    
+};
+#endif // ACTOR_H

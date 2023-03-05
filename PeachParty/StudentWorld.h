@@ -28,6 +28,13 @@ class StudentWorld : public GameWorld
     void swapPlayers();
     void randomTeleport(Player *m_player);
     void bowserPlayerPaused(Bowser *m_bowser);
+    void booPlayerPaused(Boo *m_boo);
+    void swapStars();
+    void swapCoins();
+    void setDroppingSquare(int x, int y);
+    void setVortex(int x, int y, int start_direction);
+    void fireVortex(Vortex *m_vortex);
+
     
   private:
     static const int left = 180;

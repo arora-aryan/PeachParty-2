@@ -77,7 +77,7 @@ int StudentWorld::init()
                         m_actors.push_back(new BlueCoinSquare(this,i, j));
                         break;
                     case Board::boo:
-                        m_actors.push_back(new Boo(this, i *SPRITE_WIDTH,j * SPRITE_HEIGHT));
+                        m_actors.push_back(new Boo(this, i *SPRITE_WIDTH, j * SPRITE_HEIGHT));
                         m_actors.push_back(new BlueCoinSquare(this,i, j));
                         break;
                 }
@@ -449,7 +449,7 @@ void StudentWorld::bowserPlayerPaused(Bowser *m_bowser)
         m_yoshi->setBowserActivation(false);
     }
     
-    if(m_peach->canActivateBowser() && m_peach->getX() % 16 == 0 && m_peach->getY() % 16 == 0 && !m_peach->hasTicks())
+    if(m_peach->canActivateBowser() && !m_peach->hasTicks() && m_peach->getX() == m_peach->getX() && m_peach->getY() == m_peach->getY())
     {
         if(randomevent == 1)
         {
@@ -460,6 +460,75 @@ void StudentWorld::bowserPlayerPaused(Bowser *m_bowser)
         m_peach->setBowserActivation(false);
     }
 
+}
+
+void StudentWorld::booPlayerPaused(Boo *m_boo)
+{
+    int randomevent = randInt(1, 2);
+    
+    if(m_yoshi->canActivateBoo() && !m_yoshi->hasTicks() && m_boo->getX() == m_yoshi->getX() && m_boo->getY() == m_yoshi->getY())
+    {
+        switch (randomevent)
+        {
+            case 1:
+                swapCoins();
+                m_yoshi->setBooActivation(false);
+                break;
+            case 2:
+                swapStars();
+                m_yoshi->setBooActivation(false);
+                break;
+            default:
+                break;
+        }
+    }
+    
+    if(m_peach->canActivateBoo() && !m_peach->hasTicks() && m_boo->getX() == m_peach->getX() && m_boo->getY() == m_peach->getY())
+    {
+        switch (randomevent)
+        {
+            case 1:
+                swapCoins();
+                m_peach->setBooActivation(false);
+                break;
+            case 2:
+                swapStars();
+                m_peach->setBooActivation(false);
+                break;
+            default:
+                break;
+        }
+    }
+}
+
+void StudentWorld::swapStars()
+{
+    int yoshi_new_stars = m_peach->numStars();
+    m_peach->setStarBalance(m_yoshi->numStars());
+    m_yoshi->setStarBalance(yoshi_new_stars);
+}
+
+void StudentWorld::swapCoins()
+{
+    int yoshi_new_coins = m_peach->numCoins();
+    m_peach->setCoinBalance(m_yoshi->numCoins());
+    m_yoshi->setCoinBalance(yoshi_new_coins);
+}
+
+
+void StudentWorld::setDroppingSquare(int x, int y)
+{
+    
+}
+
+void StudentWorld::setVortex(int x, int y, int start_direction)
+{
+    m_actors.push_back(new Vortex(this, x*SPRITE_WIDTH, y*SPRITE_HEIGHT, start_direction));
+}
+
+void StudentWorld::fireVortex(Vortex *m_vortex)
+{
+    m_vortex->moveAtAngle(m_vortex->getWalkAngle(), 2);
 }
 
 void StudentWorld::cleanUp()
