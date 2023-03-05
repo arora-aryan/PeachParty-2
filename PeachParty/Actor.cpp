@@ -7,53 +7,120 @@ using namespace std;
 
 void Player::doSomething()
 {
+    int board_x = getX()/SPRITE_WIDTH;
+    int board_y = getY()/SPRITE_HEIGHT;
+    
     if (alive == false)
         return;
     
-    cerr<<waiting_to_move<<endl;
+    if (waiting_to_roll == true && ((getX() % 16 == 0) && (getY() % 16 == 0)))
+    {
+        bool hasClicked = false;
+        while(!hasClicked)
+        {
+            switch(getWorld()->getAction(m_playernumber))
+            {
+                default:
+                    return;
+                case ACTION_ROLL: {
+                    cerr<<"ive arrived"<<endl;
+                    int die_roll = randInt(1,10);
+                    ticks_to_move = die_roll * 8;
+                    waiting_to_roll = false;
+                    hasClicked = true;
+                    break;
+                }
+                case ACTION_FIRE:
+                    hasClicked = true;
+                    break;
+            }
+        }
+        
+    }
     
-    */
     if(atFork() == true && getX() % 16 == 0 && getY() % 16 == 0)
     {
         
         cerr<<"at fork"<<endl;
-
-        int temp_ticks = ticks_to_move;
-        ticks_to_move = 0;
-        cerr<<"down"<<down<<endl;
         
-        int dir = 0;
-        while(dir==0)
+        bool rightOpen = (getWorld()->getBoard().getContentsOf(board_x+1, board_y) != Board::empty);
+        bool leftOpen = (getWorld()->getBoard().getContentsOf(board_x-1, board_y) != Board::empty);
+        bool upOpen = (getWorld()->getBoard().getContentsOf(board_x, board_y+1) != Board::empty);
+        bool downOpen = (getWorld()->getBoard().getContentsOf(board_x, board_y-1) != Board::empty);
+        
+        bool hasMoved = false;
+        while(!hasMoved)
         {
-            dir = getWorld()->getAction(m_playernumber);
-        }
-        cerr<<"direction"<<dir<<endl;
-        if(chooseDirection(dir))
-        {
-            ticks_to_move = temp_ticks;
-        }
-    }
-    */
-    if (waiting_to_roll == true && ((getX() % 16 == 0) && (getY() % 16 == 0)))
-    {
-        switch(getWorld()->getAction(m_playernumber))
-        {
-            default:
-                return;
-            case ACTION_ROLL: {
-                int die_roll = randInt(1,10);
-                ticks_to_move = die_roll * 8;
-                waiting_to_roll = false;
-                break;
+            switch(getWorld()->getAction(m_playernumber))
+            {
+                default:
+                    return;
+                case ACTION_DOWN:
+                    cerr<<"press down"<<endl;
+                    if(!downOpen)
+                    {
+                        cerr<<"you cant go" << down <<endl;
+                        break;
+                    }
+                    cerr<<"yes im changing"<<endl;
+                    cerr<<ticks_to_move<<endl;
+
+                    setWalkAngle(down);
+                    waiting_to_move = false;
+                    hasMoved = true;
+                    break;
+                case ACTION_UP:
+                    cerr<<"press up"<<endl;
+                    if(!upOpen)
+                    {
+                        cerr<<"you cant go" << up <<endl;
+                        break;
+                    }
+                    cerr<<"yes im changing"<<endl;
+                    cerr<<ticks_to_move<<endl;
+
+                    setWalkAngle(up);
+                    waiting_to_move = false;
+                    hasMoved = true;
+                    break;
+                case ACTION_RIGHT:
+                    cerr<<"press right"<<endl;
+                    if(!rightOpen)
+                    {
+                        cerr<<"you cant go" << right <<endl;
+                        break;
+                    }
+                    cerr<<"yes im changing"<<endl;
+                    cerr<<ticks_to_move<<endl;
+
+                    setWalkAngle(right);
+                    waiting_to_move = false;
+                    hasMoved = true;
+                    break;
+                case ACTION_LEFT:
+                    cerr<<"press left"<<endl;
+                    if(!leftOpen)
+                    {
+                        cerr<<"you cant go" << left <<endl;
+                        break;
+                    }
+                    cerr<<"yes im changing"<<endl;
+                    cerr<<ticks_to_move<<endl;
+                    setWalkAngle(left);
+                    waiting_to_move = false;
+                    hasMoved = true;
+                    break;
             }
-            case ACTION_FIRE:
-                break;
         }
-        
+        if(ticks_to_move == 0)
+            waiting_to_roll = true;
     }
-
+    
+    
     if (waiting_to_roll == false && ticks_to_move >= 0)
     {
+        waiting_to_move = true;
+        cerr<<12<<endl;
         m_activation = true;
         
         if((getX() % 16 == 0) && (getY() % 16 == 0))
@@ -61,19 +128,20 @@ void Player::doSomething()
             deadEnd();
         }
         
-        if (getWalkAngle() == left) //update direction sprite faces
+        if (getWalkAngle() == left)
             setDirection(180);
         else
             setDirection(0);
         
-        moveAtAngle(getWalkAngle(), 2); //Move two pixels in the walk direction.
+        moveAtAngle(getWalkAngle(), 2);
         ticks_to_move--;
+        cerr<<"i got "<< ticks_to_move << "ticks" << endl;
         if (ticks_to_move == 0)
-            waiting_to_roll = true; //change avatar back to waiting to roll state
+            waiting_to_roll = true;
     }
 }
+    
 
-//
 bool Player::chooseDirection(int dir)
 {
     int board_x = getX()/SPRITE_WIDTH;
