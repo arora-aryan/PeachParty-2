@@ -26,7 +26,7 @@ class StudentWorld : public GameWorld
     bool isPlayerDirOverlap(int x, int y);
     int chooseRandomEvent(Player *m_player);
     void swapPlayers();
-    void randomTeleport(Player *m_player);
+    void randomTeleport(Actor *m_actor);
     void bowserPlayerPaused(Bowser *m_bowser);
     void booPlayerPaused(Boo *m_boo);
     void swapStars();

@@ -343,6 +343,20 @@ void Baddie::doSomething()
             specialTrick();
         }
     }
+    if(beenHit())
+    {
+        setHit(false);
+        hitResult();
+    }
+}
+
+void Baddie::hitResult()
+{
+    getWorld()->randomTeleport(this);
+    setWalkAngle(right);
+    setDirection(0);
+    setPaused(true);
+    setTicks(180);
 }
 
 void Bowser::specialTrick()

@@ -85,7 +85,7 @@ int StudentWorld::init()
         }
     }
     
-    startCountdownTimer(30);
+    startCountdownTimer(99);
     return GWSTATUS_CONTINUE_GAME;
 }
 
@@ -110,9 +110,18 @@ int StudentWorld::move()
     m_yoshi->doSomething();
     
     
-    for(vector<Actor*>::const_iterator it = m_actors.begin(); it != m_actors.end(); it++)
+    for(vector<Actor*>::const_iterator it = m_actors.begin(); it != m_actors.end();)
     {
-        (*it)->doSomething();
+        if((*it)->toBeDeleted())
+        {
+            delete *it;
+            it = m_actors.erase(it);
+        }
+        else
+        {
+            (*it)->doSomething();
+            it++;
+        }
     }
     
     return GWSTATUS_CONTINUE_GAME;
@@ -495,7 +504,7 @@ void StudentWorld::swapPlayers()
     m_yoshi->setTicks(yoshi_new_ticks);
 }
 
-void StudentWorld::randomTeleport(Player *m_player)
+void StudentWorld::randomTeleport(Actor *m_actor)
 {
     int x;
     int y;
@@ -511,7 +520,7 @@ void StudentWorld::randomTeleport(Player *m_player)
             getResult = true;
     }
     playSound(SOUND_PLAYER_TELEPORT);
-    m_player->moveTo(x * SPRITE_WIDTH, y * SPRITE_HEIGHT);
+    m_actor->moveTo(x * SPRITE_WIDTH, y * SPRITE_HEIGHT);
 }
 
 void StudentWorld::bowserPlayerPaused(Bowser *m_bowser)
@@ -595,7 +604,6 @@ void StudentWorld::swapCoins()
     m_yoshi->setCoinBalance(yoshi_new_coins);
 }
 
-
 void StudentWorld::setDroppingSquare(int x, int y)
 {
     
@@ -612,15 +620,13 @@ void StudentWorld::fireVortex(Vortex *m_vortex)
     {
         if((*it)->impactable())
         {
-            cerr<<"am i impactable "<< (*it)->impactable() << endl;
             if((*it)->getX() / SPRITE_WIDTH == m_vortex->getX() / SPRITE_WIDTH && (*it)->getY() / SPRITE_HEIGHT == m_vortex->getY() / SPRITE_HEIGHT)
             {
-                
                 playSound(SOUND_HIT_BY_VORTEX);
+                (*it)->setHit(true);
+                m_vortex->die();
             }
         }
-        
-       // if it has the same x or y, and it is impactable, then delete the vortex
     }
     m_vortex->moveAtAngle(m_vortex->getWalkAngle(), 2);
 }

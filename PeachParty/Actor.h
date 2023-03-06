@@ -11,7 +11,7 @@ class StudentWorld;
 class Actor : public GraphObject
 {
   public:
-    Actor(StudentWorld* world, int imageID, int startX, int startY, int depth) : GraphObject(imageID, startX, startY, right, depth, 1.0), m_world(world), sprite_direction(0), m_impactable(false), m_alive(true) {}
+    Actor(StudentWorld* world, int imageID, int startX, int startY, int depth) : GraphObject(imageID, startX, startY, right, depth, 1.0), m_world(world), sprite_direction(0), m_impactable(false), m_alive(true), m_beenhit(false) {}
     
     virtual void doSomething() = 0;
     void setWalkAngle(int angle) { m_walk_angle = angle; }
@@ -22,7 +22,9 @@ class Actor : public GraphObject
     virtual void setImpact(){m_impactable = true;};
     bool impactable() const {return m_impactable;};
     void die() {m_alive = false; return;}
-    bool toBeDeleted(){return !m_alive;};
+    bool toBeDeleted() const {return !m_alive;};
+    bool beenHit() const {return m_beenhit;};
+    void setHit(bool h){m_beenhit = h;};
     
   private:
     StudentWorld* m_world;
@@ -30,6 +32,7 @@ class Actor : public GraphObject
     int m_walk_angle;
     bool m_impactable;
     bool m_alive;
+    bool m_beenhit;
 
 };
 
@@ -202,10 +205,12 @@ class Baddie : public Actor
     virtual void doSomething();
     virtual void doSomethingPaused() = 0;
     virtual int pickSquaresToMove() = 0;
-    virtual bool isPaused(){return m_paused;};
+    virtual bool isPaused() const {return m_paused;};
     virtual void setPaused(bool p){m_paused = p;};
     virtual void specialTrick() = 0;
-
+    void hitResult();
+    void setTicks(int t){ticks_to_move = t;};
+    
   private:
     int ticks_to_move;
     int squares_to_move;
