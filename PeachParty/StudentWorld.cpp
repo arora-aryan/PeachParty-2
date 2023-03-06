@@ -606,7 +606,17 @@ void StudentWorld::swapCoins()
 
 void StudentWorld::setDroppingSquare(int x, int y)
 {
-    
+    /*
+    for (vector<Actor*>::iterator it = m_actors.begin(); it != m_actors.end(); it++)
+    {
+        if((*it)->getX()/SPRITE_WIDTH == x && (*it)->getY()/SPRITE_WIDTH == x && (*it)->canBeExchanged() && (*it)->toBeDeleted() == false)
+        {
+            cerr<<"times died"<< endl;
+            //m_actors.push_back(new DroppingSquare(this, x, y));
+            //(*it)->die();
+        }
+    }
+     */
 }
 
 void StudentWorld::setVortex(int x, int y, int start_direction)
@@ -616,6 +626,12 @@ void StudentWorld::setVortex(int x, int y, int start_direction)
 
 void StudentWorld::fireVortex(Vortex *m_vortex)
 {
+    if(m_vortex->getX() / SPRITE_WIDTH < 0 || m_vortex->getY() / SPRITE_HEIGHT < 0 || m_vortex->getX() / SPRITE_WIDTH > BOARD_WIDTH || m_vortex->getY() / SPRITE_HEIGHT > BOARD_HEIGHT)
+    {
+        m_vortex->die();
+        return;
+    }
+        
     for (vector<Actor*>::iterator it = m_actors.begin(); it != m_actors.end(); it++)
     {
         if((*it)->impactable())

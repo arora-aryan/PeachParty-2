@@ -7,7 +7,7 @@ using namespace std;
 
 void Player::doSomething()
 {
-    cerr<<"do i got a vortex: " << hasVortex() << endl;
+    //cerr<<"do i got a vortex: " << hasVortex() << endl;
     //cerr<<"i have: " << numCoins() << "coins" << endl;
     //cerr<<"i have " << numStars() << "stars" << endl;
     int board_x = getX()/SPRITE_WIDTH;
@@ -359,9 +359,17 @@ void Baddie::hitResult()
     setTicks(180);
 }
 
+void DroppingSquare::doSomething()
+{
+    
+}
+
 void Bowser::specialTrick()
 {
-    getWorld()->setDroppingSquare(getX()/SPRITE_WIDTH, getX()/SPRITE_HEIGHT);
+    if(randInt(1, 2) == 2)
+    {
+        getWorld()->setDroppingSquare(getX()/SPRITE_WIDTH, getX()/SPRITE_HEIGHT);
+    }
 }
 
 void Bowser::doSomethingPaused()

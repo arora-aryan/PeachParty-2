@@ -25,6 +25,8 @@ class Actor : public GraphObject
     bool toBeDeleted() const {return !m_alive;};
     bool beenHit() const {return m_beenhit;};
     void setHit(bool h){m_beenhit = h;};
+    bool canBeExchanged() const {return m_exchanged;};
+    void setExchange(bool e){m_exchanged = e;};
     
   private:
     StudentWorld* m_world;
@@ -33,13 +35,14 @@ class Actor : public GraphObject
     bool m_impactable;
     bool m_alive;
     bool m_beenhit;
+    bool m_exchanged;
 
 };
 
 class Player : public Actor
 {
   public:
-    Player(StudentWorld* world, int imageID, int startX, int startY, int playerNum) : Actor(world, imageID, startX, startY, 0), ticks_to_move(0), waiting_to_roll(true), m_playernumber(playerNum), m_activation(false), m_numStars(0), waiting_to_move(false), m_bankActivation(false), m_eventActivation(true), vortex(true), m_bowserActivation(true)
+    Player(StudentWorld* world, int imageID, int startX, int startY, int playerNum) : Actor(world, imageID, startX, startY, 0), ticks_to_move(0), waiting_to_roll(true), m_playernumber(playerNum), m_activation(false), m_numStars(0), waiting_to_move(false), m_bankActivation(false), m_eventActivation(true), vortex(false), m_bowserActivation(true)
     {
         start_x = getX()/SPRITE_WIDTH;
         start_y = getY()/SPRITE_HEIGHT;
@@ -124,7 +127,7 @@ class Yoshi : public Player
 class Square : public Actor
 {
   public:
-    Square(StudentWorld* world, int imageID, int startX, int startY, int startDirection) : Actor(world, imageID, startX, startY, 1) {}
+    Square(StudentWorld* world, int imageID, int startX, int startY, int startDirection, int depth = 1) : Actor(world, imageID, startX, startY, depth) {setExchange(true);}
     virtual ~Square() {}
     void intersection();
   private:
@@ -194,6 +197,14 @@ class BankSquare : public Square
 {
   public:
     BankSquare(StudentWorld* world, int board_x, int board_y) : Square(world, IID_BANK_SQUARE, SPRITE_WIDTH * board_x, SPRITE_HEIGHT * board_y, right) {}
+    virtual void doSomething();
+    
+};
+
+class DroppingSquare : public Square
+{
+  public:
+    DroppingSquare(StudentWorld* world, int board_x, int board_y) : Square(world, IID_DROPPING_SQUARE, SPRITE_WIDTH * board_x, SPRITE_HEIGHT * board_y, right, 0) {}
     virtual void doSomething();
 
 };
