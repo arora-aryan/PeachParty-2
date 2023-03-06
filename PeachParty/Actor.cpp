@@ -13,9 +13,6 @@ void Player::doSomething()
     int board_x = getX()/SPRITE_WIDTH;
     int board_y = getY()/SPRITE_HEIGHT;
     
-    if (alive == false)
-        return;
-    
     bool overlapping_dir = getWorld()->isPlayerDirOverlap(board_x, board_y);
     
     if (waiting_to_roll == true && ((getX() % 16 == 0) && (getY() % 16 == 0)))

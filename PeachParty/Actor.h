@@ -11,7 +11,7 @@ class StudentWorld;
 class Actor : public GraphObject
 {
   public:
-    Actor(StudentWorld* world, int imageID, int startX, int startY, int depth) : GraphObject(imageID, startX, startY, right, depth, 1.0), m_world(world), sprite_direction(0) {}
+    Actor(StudentWorld* world, int imageID, int startX, int startY, int depth) : GraphObject(imageID, startX, startY, right, depth, 1.0), m_world(world), sprite_direction(0), m_impactable(false), m_alive(true) {}
     
     virtual void doSomething() = 0;
     void setWalkAngle(int angle) { m_walk_angle = angle; }
@@ -19,17 +19,24 @@ class Actor : public GraphObject
     int getWalkAngle() const { return m_walk_angle; }
     virtual ~Actor() {}
     virtual void deadEnd();
+    virtual void setImpact(){m_impactable = true;};
+    bool impactable() const {return m_impactable;};
+    void die() {m_alive = false; return;}
+    bool toBeDeleted(){return !m_alive;};
     
   private:
     StudentWorld* m_world;
     int sprite_direction;
     int m_walk_angle;
+    bool m_impactable;
+    bool m_alive;
+
 };
 
 class Player : public Actor
 {
   public:
-    Player(StudentWorld* world, int imageID, int startX, int startY, int playerNum) : Actor(world, imageID, startX, startY, 0), ticks_to_move(0), waiting_to_roll(true), m_playernumber(playerNum), alive(true), m_activation(false), m_numStars(0), waiting_to_move(false), m_bankActivation(false), m_eventActivation(true), vortex(false), m_bowserActivation(true)
+    Player(StudentWorld* world, int imageID, int startX, int startY, int playerNum) : Actor(world, imageID, startX, startY, 0), ticks_to_move(0), waiting_to_roll(true), m_playernumber(playerNum), m_activation(false), m_numStars(0), waiting_to_move(false), m_bankActivation(false), m_eventActivation(true), vortex(true), m_bowserActivation(true)
     {
         start_x = getX()/SPRITE_WIDTH;
         start_y = getY()/SPRITE_HEIGHT;
@@ -50,7 +57,6 @@ class Player : public Actor
     void setCoinBalance(int coins) { m_numCoins = coins;}
     int numCoins() const {return m_numCoins;}
     int numStars() const {return m_numStars;}
-    void die() { alive = false; return; }
     virtual void doSomething();
     int dieRoll();
     virtual ~Player() {}
@@ -89,7 +95,6 @@ class Player : public Actor
     int m_numCoins;
     int m_numStars;
     int m_playernumber;
-    bool alive;
     bool right_open;
     bool left_open;
     bool up_open;
@@ -193,7 +198,7 @@ class BankSquare : public Square
 class Baddie : public Actor
 {
   public:
-    Baddie(StudentWorld* world, int iid, int board_x, int board_y) : Actor(world, iid, board_x, board_y, 0), m_paused(true), m_travel_distance(0), m_pause_counter(180), ticks_to_move(0), squares_to_move(0) {}
+    Baddie(StudentWorld* world, int iid, int board_x, int board_y) : Actor(world, iid, board_x, board_y, 0), m_paused(true), m_travel_distance(0), m_pause_counter(180), ticks_to_move(0), squares_to_move(0) {setImpact();}
     virtual void doSomething();
     virtual void doSomethingPaused() = 0;
     virtual int pickSquaresToMove() = 0;

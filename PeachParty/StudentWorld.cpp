@@ -85,7 +85,7 @@ int StudentWorld::init()
         }
     }
     
-    startCountdownTimer(5);
+    startCountdownTimer(30);
     return GWSTATUS_CONTINUE_GAME;
 }
 
@@ -109,8 +109,8 @@ int StudentWorld::move()
     m_peach->doSomething();
     m_yoshi->doSomething();
     
-    vector<Actor*>::const_iterator it;
-    for(it = m_actors.begin(); it != m_actors.end(); it++)
+    
+    for(vector<Actor*>::const_iterator it = m_actors.begin(); it != m_actors.end(); it++)
     {
         (*it)->doSomething();
     }
@@ -120,6 +120,45 @@ int StudentWorld::move()
 
 int StudentWorld::winner()
 {
+    if(m_peach->numStars() == m_yoshi->numStars())
+    {
+        if(m_peach->numCoins() > m_yoshi->numCoins())
+        {
+            setFinalScore(m_peach->numStars(), m_peach->numCoins());
+            return GWSTATUS_PEACH_WON;
+        }
+        else if(m_peach->numCoins() < m_yoshi->numCoins())
+        {
+            setFinalScore(m_yoshi->numStars(), m_yoshi->numCoins());
+            return GWSTATUS_YOSHI_WON;
+        }
+    }
+    else if(m_peach->numStars() > m_yoshi->numStars())
+    {
+        setFinalScore(m_peach->numStars(), m_peach->numCoins());
+        return GWSTATUS_PEACH_WON;
+    }
+    else if(m_peach->numStars() < m_yoshi->numStars())
+    {
+        setFinalScore(m_yoshi->numStars(), m_yoshi->numCoins());
+        return GWSTATUS_YOSHI_WON;
+    }
+    else
+    {
+        switch (randInt(1, 2)) {
+            case 1:
+                setFinalScore(m_peach->numStars(), m_peach->numCoins());
+                return GWSTATUS_PEACH_WON;
+                break;
+            case 2:
+                setFinalScore(m_yoshi->numStars(), m_yoshi->numCoins());
+                return GWSTATUS_YOSHI_WON;
+                break;
+            default:
+                break;
+        }
+    }
+    setFinalScore(m_peach->numStars(), m_peach->numCoins());
     return GWSTATUS_PEACH_WON;
 }
 
@@ -128,16 +167,27 @@ void StudentWorld::determineText()
     std::string peach_text;
     std::string yoshi_text;
     int tr = timeRemaining();
-    
-    peach_text = "P1 Roll: " + to_string(m_peach->getTicks()/8) + " Stars: " + to_string(m_peach->numStars()) + " $$: " + to_string(m_peach->numCoins()) + " | ";
-    if(m_peach->hasVortex())
-        peach_text = "P1 Roll: " + to_string(m_peach->getTicks()/8) + "Stars: " + to_string(m_peach->numStars()) + "$$: " + to_string(m_peach->numCoins()) + "VOR |";
- 
-    yoshi_text = " P2 Roll: " + to_string(m_yoshi->getTicks()/8) + " Stars: " + to_string(m_yoshi->numStars()) + " $$: " + to_string(m_yoshi->numCoins());
-    if(m_yoshi->hasVortex())
-        yoshi_text = "P2 Roll: " + to_string(m_yoshi->getTicks()/8) + " Stars: " + to_string(m_yoshi->numStars()) + " $$: " + to_string(m_yoshi->numCoins()) + " VOR";
+    int peachticks = 0;
+    int yoshticks = 0;
 
-    m_displayText = peach_text + "Time: " + to_string(tr) + " | " + " Bank: " + to_string(m_banktotal) + " | " + yoshi_text;
+    if(m_peach->hasTicks())
+    {
+        peachticks = (m_peach->getTicks()/8) + 1;
+    }
+    if(m_yoshi->hasTicks())
+    {
+        yoshticks = (m_yoshi->getTicks()/8) + 1;
+    }
+    
+    peach_text = "P1 Roll: " + to_string(peachticks) + " Stars: " + to_string(m_peach->numStars()) + " $$: " + to_string(m_peach->numCoins()) + " |";
+    if(m_peach->hasVortex())
+        peach_text = "P1 Roll: " + to_string(peachticks) + " Stars: " + to_string(m_peach->numStars()) + " $$: " + to_string(m_peach->numCoins()) + " VOR |";
+ 
+    yoshi_text = " P2 Roll: " + to_string(yoshticks) + " Stars: " + to_string(m_yoshi->numStars()) + " $$: " + to_string(m_yoshi->numCoins());
+    if(m_yoshi->hasVortex())
+        yoshi_text = " P2 Roll: " + to_string(yoshticks) + " Stars: " + to_string(m_yoshi->numStars()) + " $$: " + to_string(m_yoshi->numCoins()) + " VOR";
+
+    m_displayText = peach_text + " Time: " + to_string(tr) + " | " + " Bank: " + to_string(m_banktotal) + " | " + yoshi_text;
 }
 
 void StudentWorld::coinPlayerOverlap()
@@ -297,9 +347,9 @@ void StudentWorld::bankPlayerOverlap()
         switch (ge)
         {
             case Board::bank_square:
-                playSound(SOUND_GIVE_STAR);
                 if(m_yoshi->hasTicks())
                 {
+                    playSound(SOUND_WITHDRAW_BANK);
                     if(m_yoshi->numCoins() < 5)
                     {
                         m_banktotal += m_yoshi->numCoins();
@@ -315,6 +365,7 @@ void StudentWorld::bankPlayerOverlap()
                 }
                 else
                 {
+                    playSound(SOUND_DEPOSIT_BANK);
                     m_yoshi->updateCoinBalance(m_banktotal);
                     m_yoshi->setBankActivation(false);
                 }
@@ -327,7 +378,7 @@ void StudentWorld::bankPlayerOverlap()
         switch (ge)
         {
             case Board::bank_square:
-                playSound(SOUND_GIVE_STAR);
+                playSound(SOUND_WITHDRAW_BANK);
                 if(m_peach->hasTicks())
                 {
                     if(m_peach->numCoins() < 5)
@@ -345,6 +396,7 @@ void StudentWorld::bankPlayerOverlap()
                 }
                 else
                 {
+                    playSound(SOUND_DEPOSIT_BANK);
                     m_peach->updateCoinBalance(m_banktotal);
                     m_peach->setBankActivation(false);
                 }
@@ -379,7 +431,6 @@ void StudentWorld::eventPlayerOverlap()
                         playSound(SOUND_GIVE_VORTEX);
                         m_yoshi->getVortex();
                         m_yoshi->setEventActivation(false);
-
                     default:
                         break;
                 }
@@ -478,7 +529,7 @@ void StudentWorld::bowserPlayerPaused(Bowser *m_bowser)
         m_yoshi->setBowserActivation(false);
     }
     
-    if(m_peach->canActivateBowser() && !m_peach->hasTicks() && m_peach->getX() == m_peach->getX() && m_peach->getY() == m_peach->getY())
+    if(m_peach->canActivateBowser() && !m_peach->hasTicks() && m_bowser->getX() == m_peach->getX() && m_bowser->getY() == m_peach->getY())
     {
         if(randomevent == 1)
         {
@@ -557,6 +608,20 @@ void StudentWorld::setVortex(int x, int y, int start_direction)
 
 void StudentWorld::fireVortex(Vortex *m_vortex)
 {
+    for (vector<Actor*>::iterator it = m_actors.begin(); it != m_actors.end(); it++)
+    {
+        if((*it)->impactable())
+        {
+            cerr<<"am i impactable "<< (*it)->impactable() << endl;
+            if((*it)->getX() / SPRITE_WIDTH == m_vortex->getX() / SPRITE_WIDTH && (*it)->getY() / SPRITE_HEIGHT == m_vortex->getY() / SPRITE_HEIGHT)
+            {
+                
+                playSound(SOUND_HIT_BY_VORTEX);
+            }
+        }
+        
+       // if it has the same x or y, and it is impactable, then delete the vortex
+    }
     m_vortex->moveAtAngle(m_vortex->getWalkAngle(), 2);
 }
 
